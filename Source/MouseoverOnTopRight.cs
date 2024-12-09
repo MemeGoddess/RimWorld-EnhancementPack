@@ -11,9 +11,19 @@ using UnityEngine;
 
 namespace TD_Enhancement_Pack
 {
-	[HarmonyPatch(typeof(MouseoverReadout), "MouseoverReadoutOnGUI")]
+	[HarmonyPatch]
 	public static class MouseoverOnTopRight
 	{
+
+		[HarmonyTargetMethods]
+		public static IEnumerable<MethodBase> TargetMethods()
+		{
+			yield return AccessTools.Method(typeof(MouseoverReadout), "MouseoverReadoutOnGUI");
+			MethodInfo vee = AccessTools.Method("VEE.HarmonyInit:AddDroughtLine"); // VE Events
+			if( vee != null )
+				yield return vee;
+		}
+
 		//public void MouseoverReadoutOnGUI()
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 		{
