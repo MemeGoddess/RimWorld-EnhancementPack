@@ -69,7 +69,7 @@ namespace TD_Enhancement_Pack
 	{
 		public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
 		{
-			return HaulAIUtility.HaulToStorageJob(pawn, t);
+			return HaulAIUtility.HaulToStorageJob(pawn, t, forced);
 		}
 
 		private static bool NeedsRefill(IntVec3 c, Map map)

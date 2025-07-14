@@ -94,7 +94,6 @@ namespace TD_Enhancement_Pack
 				AccessTools.Method(typeof(LabelAddSelection), nameof(NoButtonInvisible))),
 				AccessTools.Method(typeof(TooltipHandler), nameof(TooltipHandler.TipRegion), new Type[] { typeof(Rect), typeof(TipSignal)}),
 				AccessTools.Method(typeof(LabelAddSelection), nameof(NoTipRegion)));
-			;
 		}
 
 		//public static bool ButtonInvisible(Rect butRect, bool doMouseoverSound = false)

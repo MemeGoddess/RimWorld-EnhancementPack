@@ -9,6 +9,7 @@ using Verse.AI;
 using HarmonyLib;
 using UnityEngine;
 using RimWorld;
+using RimWorld.Planet;
 
 namespace TD_Enhancement_Pack
 {
@@ -23,7 +24,7 @@ namespace TD_Enhancement_Pack
 		{
 			if (__instance.Drafted ? !Mod.settings.showStopGizmoDrafted : !Mod.settings.showStopGizmo) return;
 
-			if (RimWorld.Planet.WorldRendererUtility.WorldRenderedNow) return;
+			if (Find.World.renderer.wantedMode != WorldRenderMode.None) return;
 
 
 			if (!DebugSettings.godMode)

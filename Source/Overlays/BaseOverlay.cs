@@ -139,7 +139,7 @@ namespace TD_Enhancement_Pack
 	{
 		public static void Postfix()
 		{
-			if (Find.CurrentMap == null || WorldRendererUtility.WorldRenderedNow)
+			if (Find.CurrentMap == null || Find.World.renderer.wantedMode != WorldRenderMode.None)
 				return;
 
 			foreach (BaseOverlay overlay in BaseOverlay.AllOverlays())

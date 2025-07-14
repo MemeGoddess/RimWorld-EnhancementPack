@@ -82,7 +82,7 @@ namespace TD.Utilities
 		public static void LabelHeader(this Listing_Standard listing, string label, float maxHeight = -1, string tooltip = null)
 		{
 			Text.Font = GameFont.Medium;
-			listing.Label(label, maxHeight, tooltip);
+			listing.Label(label, maxHeight, (TipSignal?)tooltip);
 			Text.Font = GameFont.Small;
 		}
 
