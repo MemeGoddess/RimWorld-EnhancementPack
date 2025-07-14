@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+	<TD.HexColorValuesOnly>Hex color values only</TD.HexColorValuesOnly>
+	<TD.ToggleBuildable>Toggle the buildable terrain overlay</TD.ToggleBuildable>
+	<TD.ToggleCoverage>Toggle the building coverage overlay (shown when selected buildings have coverage)</TD.ToggleCoverage>
+	<TD.ToggleBeauty>Toggle the beauty overlay</TD.ToggleBeauty>
+	<TD.ToggleFertility>Toggle the fertile terrain overlay</TD.ToggleFertility>
+	<TD.ToggleLighting>Toggle the lighting overlay</TD.ToggleLighting>
+	<TD.ToggleWalkSpeed>Toggle the walkspeed overlay</TD.ToggleWalkSpeed>
+	<TD.TogglePlantHarveset>Toggle the harvest overlay</TD.TogglePlantHarveset>
+	<TD.TogglePowerOverlay>Toggle the power net</TD.TogglePowerOverlay>
+	<TDEnhancementPack>TD Enhancement Pack</TDEnhancementPack>
+	<TD.FertileCount>Fertile</TD.FertileCount>
+	<TD.SettingOverlayBuildable>Enable a toggle for a buildable terrain overlay</TD.SettingOverlayBuildable>
+	<TD.SettingOverlayBuildableDesc>Red is unbuildable terrain, Orange is 'Medium', Yellow is 'Light', and clear is 'Heavy' (pretty much everything can be built on 'Heavy')</TD.SettingOverlayBuildableDesc>
+	<TD.SettingOverlayCoverage>Enable a toggle for a building coverage overlay</TD.SettingOverlayCoverage>
+	<TD.SettingOverlayCoverageDesc>Buildings like trade beacons show their collective range when selected</TD.SettingOverlayCoverageDesc>
+	<TD.SettingOverlayBeauty>Enable a toggle for a beauty overlay</TD.SettingOverlayBeauty>
+	<TD.SettingOverlayFertility>Enable a toggle for a fertility overlay</TD.SettingOverlayFertility>
+	<TD.SettingOverlayFertilityUnder>Fertility overlay shows value for terrain under floors</TD.SettingOverlayFertilityUnder>
+	<TD.SettingOverlayWalkSpeed>Enable a toggle for a walkspeed overlay</TD.SettingOverlayWalkSpeed>
+	<TD.SettingOverlayLighting>Enable a toggle for a lighting overlay</TD.SettingOverlayLighting>
+	<TD.SettingOverlayLightingDesc>Sun-lit outdoor areas are uncolored</TD.SettingOverlayLightingDesc>
+	<TD.SettingOverlayPower>Enable a toggle to show the power net</TD.SettingOverlayPower>
+	<TD.SettingOverlayPlantHarvest>Enable a toggle for a harvest overlay</TD.SettingOverlayPlantHarvest>
+	<TD.SettingTradeClose>Set speed after closing trade or negotiation dialog</TD.SettingTradeClose>
+	<TD.SettingTradeCloseSpeed>Speed after closing: </TD.SettingTradeCloseSpeed>
+	<TD.SettingResearchingArrow>Show arrow indicating research in progress</TD.SettingResearchingArrow>
+	<TD.SettingSkillGainArrow>Show arrows indicating skill gain</TD.SettingSkillGainArrow>
+	<TD.SettingSkillGainArrowDesc>In the Character Tab</TD.SettingSkillGainArrowDesc>
+	<TD.SettingSkillLossArrow>Show arrows indicating skill loss</TD.SettingSkillLossArrow>
+	<TD.SettingSkillLossArrowDesc>Skills slowly lose experience after level 10 (The arrow can be very faded for slow rates)</TD.SettingSkillLossArrowDesc>
+	<TD.SettingZoneFertility>Show Growing Zone's size accounting fertility</TD.SettingZoneFertility>
+	<TD.SettingZoneFertilityDesc>The "Fertile" size is the equivalent size of land with 100% fertility (e.g. 100 plots on 140% fertile land has "fertile size" of 140, as it would yield the same as 140 at 100% fertiliity)</TD.SettingZoneFertilityDesc>
+	<TD.OtherFeatures>Other features:</TD.OtherFeatures>
+	<TD.AreaEditing>Areas can be reordered, recolored, and copy/pasted in the area manager</TD.AreaEditing>
+	<TD.NeverHome>Make an area named 'Never Home' and the area will never be added to the Home Area</TD.NeverHome>
+	<TD.SlaughterZone>Make an area named 'Slaughter' and the animals will only be slaughtered in that area</TD.SlaughterZone>
+	<TD.RequiresRestart>These require a restart to take effect:</TD.RequiresRestart>
+	<TD.VariousCount>(various) selected items are given a count</TD.VariousCount>
+	<TD.RottedAwayClickable>Food 'rotted away' messages are clickable to see where it was</TD.RottedAwayClickable>
+	<TD.SettingsIgnoreSleeping>Undrafted colonists ignore sleeping enemies</TD.SettingsIgnoreSleeping>
+	<TD.SettingsIgnoreSleepingDesc>This applies to the 'Attack' Reaction mode. Would you believe your colonists would attack sleeping megascarabs if they happened to haul near them?</TD.SettingsIgnoreSleepingDesc>
+	<TD.ShowStopButtonUnDrafted>Show stop button (undrafted)</TD.ShowStopButtonUnDrafted>
+	<TD.ShowStopButtonDrafted>Show stop button (drafted)</TD.ShowStopButtonDrafted>
+	<TD.StopGizmo>Stop</TD.StopGizmo>
+	<TD.StopDescDrafted>Stop the current action</TD.StopDescDrafted>
+	<TD.StopDescUndrafted>Stop the current job (find another job, which might be the same job)</TD.StopDescUndrafted>
+	<TD.AddedByTD>Added by TD Enhancement Pack</TD.AddedByTD>
+	<TD.AllowHarvesting>Allow harvesting</TD.AllowHarvesting>
+	<TD.AllowHarvestingDesc>When disabled, colonists will never harvest plants in this zone. They will still sow.</TD.AllowHarvestingDesc>
+	<TD.SettingAllowHarvesting>Growing Zones 'Allow Harvesting' Toggle</TD.SettingAllowHarvesting>
+	<TD.SettingAllowHarvestingDesc>Also applies to Hydroponics (forbidden status is just for sowing then)</TD.SettingAllowHarvestingDesc>
+	<TD.SettingAreaForTypes>Add a toggle to set areas to not show for colonists/animals.</TD.SettingAreaForTypes>
+	<TD.SettingAreaForTypesDesc>Two checkboxes in the area manager. When toggled off, that area is disabled for selection for colonists/animals</TD.SettingAreaForTypesDesc>
+	<TD.FeatureConditionGreen>Good body conditions are green ; Whole body tag is yellow</TD.FeatureConditionGreen>
+	<TD.WhatDropped>What dropped: {0}</TD.WhatDropped>
+	<TD.Deterioration>Deterioration</TD.Deterioration>
+	<TD.DeteriorationAlert>Something is deteriorating and is getting low on health. Put it indoors to keep it safe.</TD.DeteriorationAlert>
+	<TD.Match>Match</TD.Match>
+	<TD.MatchDesc>Add a growing zone, but only add terrain with fertility that matches the first cell picked</TD.MatchDesc>
+	<TD.SettingStopFlee>Stop fleeing if threat is gone</TD.SettingStopFlee>
+	<TD.SettingStopFleeDesc>Pretty sure this works\n\nSetting change doesn't apply to people already fleeing</TD.SettingStopFleeDesc>
+	<TD.SettingDodgeGrenades>Dodge grenades while drafted</TD.SettingDodgeGrenades>
+	<TD.SettingDodgeGrenadesDesc>Of course this interrupts what you're doing.</TD.SettingDodgeGrenadesDesc>
+	<TD.SettingDodgeGrenadesEnemy>Colonists dodge enemy grenades</TD.SettingDodgeGrenadesEnemy>
+	<TD.SettingDodgeGrenadesEnemyDesc>People never actually dodged enemy grenades, even undrafted. Now you can.</TD.SettingDodgeGrenadesEnemyDesc>
+	<TD.SettingDodgeGrenadesNPC>Enemies dodge your grenades</TD.SettingDodgeGrenadesNPC>
+	<TD.SettingDodgeGrenadesNPCDesc>Now they will dodge your grenades too. I don't recommend this, but I guess it's realistic.\n\nAlso technically, two factions will dodge each other's grenades if "Colonists dodge enemy grenades" is on</TD.SettingDodgeGrenadesNPCDesc>
+	<TD.SettingDodgeGrenadesUnlessBelt>Don't dodge if shield belt is worn</TD.SettingDodgeGrenadesUnlessBelt>
+	<TD.SettingAutoBuildable>Auto-show buildable terrain overlay when placing buildings</TD.SettingAutoBuildable>
+	<TD.SettingAutoBuildableDesc>Buildings with unique requirements like bridges and graves will show a overlay of where they can't be built</TD.SettingAutoBuildableDesc>
+	<TD.SettingAutoCoverage>Auto-show building coverage overlay when placing buildings</TD.SettingAutoCoverage>
+	<TD.SettingAutoCoverageDesc>Buildings like trade beacons show their collective range</TD.SettingAutoCoverageDesc>
+	<TD.SettingAutoSmoothable>Auto-highlight smoothable terrain when smoothing things</TD.SettingAutoSmoothable>
+	<TD.SettingAutoTreeGrowth>Auto-highlight tree growth when ordering wood chopping</TD.SettingAutoTreeGrowth>
+	<TD.SettingAutoTreeGrowthDesc>Red is unharvestable \nGreen is harvestable \nWhite is fully mature \nYellow is harvestable "soon"</TD.SettingAutoTreeGrowthDesc>
+	<TD.SettingAutoWindBlocker>Auto-highlight wind-blocking things when placing wind turbines</TD.SettingAutoWindBlocker>
+	<TD.SettingAutoFertility>Auto-show fertility overlay when placing growing zones</TD.SettingAutoFertility>
+	<TD.SettingAutoLighting>Auto-show lighting overlay when placing lights</TD.SettingAutoLighting>
+	<TD.SettingAutoPlantHarvest>Auto-show harvest overlay when ordering plant harvesting</TD.SettingAutoPlantHarvest>
+	<TD.SettingMakeWay>Other workers not assigned to construction will remove things (i.e. trees) for blueprints</TD.SettingMakeWay>
+	<TD.SettingMakeWayDesc>Plant cutters and miners will clear away things for blueprints.\n\n(There are reports that this is making right-clicking something slow, so disable this to probably fix that.)</TD.SettingMakeWayDesc>
+	<TD.SettingHandleAllBlocking>Clear out all things at once ( it'll normally cut one tree at a time ?? )</TD.SettingHandleAllBlocking>
+	<TD.SettingAutoAutorebuild>Auto-rebuild is on for a new game</TD.SettingAutoAutorebuild>
+	<TD.SettingAutoRebuildTransportPod>Auto-rebuild Transport Pods when launched</TD.SettingAutoRebuildTransportPod>
+	<TD.CaravanLoadSelection>Forming a caravan pre-selects all the things that are selected on the map</TD.CaravanLoadSelection>
+	<TD.CaravanSaveManifest>Closing the caravan/transport-pod dialog will remember the list of things to send, and opening it again will re-select them</TD.CaravanSaveManifest>
+	<TD.CaravanDesc>*Note: Closing and re-opening with newly selected items won't add them, since the previous selection was saved: Just hit the reset button and re-open the window to get newly selected items.</TD.CaravanDesc>
+	<TD.CaravanWorstFirst>Trade Requests give the lowest-value items first</TD.CaravanWorstFirst>
+	<TD.CaravanWorstFirstDesc>Keep in mind that at least normal quality is still required, but this avoids donating legendary items when you have normal available.</TD.CaravanWorstFirstDesc>
+	<TD.BlueprintAnyStuff>Right-click a building tool to select any material to build from (even when you don't have it available)</TD.BlueprintAnyStuff>
+	<TD.SettingCopyPolicy>Show A "Make Copy" button in the Outfit/Food policy settings</TD.SettingCopyPolicy>
+	<TD.SettingBillCountEquippedAny>Show The "Count Equipped" option for every bill</TD.SettingBillCountEquippedAny>
+	<TD.SettingBillCountEquippedAnyDesc>Weapon and Apparel always do, but why not count meals + medicine in your inventory?</TD.SettingBillCountEquippedAnyDesc>
+	<TD.SettingTopRightMouseover>Mouseover tile info is on topright</TD.SettingTopRightMouseover>
+	<TD.SettingTopRightMouseoverDesc>So it shows up when something is selected\n\nOf course this is a bad idea if you still have the learning helper on.</TD.SettingTopRightMouseoverDesc>
+	<TD.SettingPawnTableHighlightSelected>Show selected pawns in tables</TD.SettingPawnTableHighlightSelected>
+	<TD.SettingPawnTableHighlightSelectedDesc>Tables like the work tab, wildlife tab, etc.</TD.SettingPawnTableHighlightSelectedDesc>
+	<TD.SettingPawnTableArrowMouseover>Show arrow pointing to pawn in tables</TD.SettingPawnTableArrowMouseover>
+	<TD.SettingCtrlQueueFront>Ctrl-shift-click queues actions to front of queue</TD.SettingCtrlQueueFront>
+	<TD.SettingCtrlQueueFrontDesc>Normally, Shift-click already just queues the action, but to the end of the queue. This lets you queue to the front.</TD.SettingCtrlQueueFrontDesc>
+	<TD.SettingPawnTableClickSelect>Mouse clicks in pawn tables select them. (Alt-click to work as before)</TD.SettingPawnTableClickSelect>
+	<TD.SettingPawnTableClickSelectDesc>Should behave intuitively like any other selection. Press Esc to close the tab window.\n\nShift-click to select/deselect multiple. Click-and-drag to select groups. Double-click to select all of the same type. Right-click to zoom, without selecting. Alt-click to close window, select and go to that one pawn.</TD.SettingPawnTableClickSelectDesc>
+	<TD.SettingAlertDeterioration>Alert for deteriorating things</TD.SettingAlertDeterioration>
+	<TD.SettingAlertDeteriorationDesc>Deteriorating things with less than 50% HP, that are not forbidden, and this doesn't include rotting corpses.</TD.SettingAlertDeteriorationDesc>
+	<TD.SettingAlertBurning>Alert for colonists that are burning</TD.SettingAlertBurning>
+	<TD.SettingAlertToxic>Alert for colonists that are getting toxic buildup</TD.SettingAlertToxic>
+	<TD.SettingAlertNoBill>Alert for workbenches with no bills set up</TD.SettingAlertNoBill>
+	<TD.SettingMatchGrow>Enable a tool to make a growing zone that matches terrain</TD.SettingMatchGrow>
+	<TD.SettingMatchGrowDesc>Terrain is only added if fertility % matches the first tile selected when dragging</TD.SettingMatchGrowDesc>
+	<TD.DropPodWhatDropped>The letter for random resource drop pods tell you what dropped</TD.DropPodWhatDropped>
+	<TD.SarcophagusPreferred>Sarcophagus preferred to use over graves</TD.SarcophagusPreferred>
+	<TD.SarcophagusPreferredDesc>The default settings for a Sarcophagus are Critical so they are used before graves. The settings are already colonist-only, but without setting Critical, colonists would be buried in closer graves instead</TD.SarcophagusPreferredDesc>
+	<TD.NoFrameDecon>Frames can't be deconstructed, only canceled</TD.NoFrameDecon>
+	<TD.NoFrameDeconDesc>Deconstruction would return less resources than canceling</TD.NoFrameDeconDesc>
+	<TD.DropdownBuildingsOrder>Dropdown designators get their order set by their contained designators</TD.DropdownBuildingsOrder>
+	<TD.DropdownBuildingsOrderDesc>e.g. colored lights show up in the build menu next to other lights instead of the front of the list</TD.DropdownBuildingsOrderDesc>
+	<TD.SmoothSelectedStone>Selected stone has a button to smooth it</TD.SmoothSelectedStone>
+	<TD.LowerOverlayOpacities>Lower overlay opacities:</TD.LowerOverlayOpacities>
+	<TD.SettingUrgentRefill>If you have Allow Tool, stockpiles have an 'urgent refill' toggle</TD.SettingUrgentRefill>
+	<TD.SettingUrgentRefillDesc>If a tile in a chosen stockpile is empty, there will be a urgent hauling job to refill it. Great for kitchen/workbench supplies.\n\nRequires Allow Tool</TD.SettingUrgentRefillDesc>
+	<TD.SettingCameraDragFix>Fix camera middle-mouse dragging </TD.SettingCameraDragFix>
+	<TD.SettingCameraDragFixDesc>Dragging attaches the map to the cursor instead of moving at some who-knows-what speed\n\nDragging at low FPS is not affected\n\nThe sliding of the map after mouse is stopped is removed</TD.SettingCameraDragFixDesc>
+	<TD.WorkGiverRefillZones>refill zones urgently</TD.WorkGiverRefillZones>
+	<TD.RefillingUrgently>refilling urgently</TD.RefillingUrgently>
+	<TD.GizmoUrgentRefill>Urgent Refill</TD.GizmoUrgentRefill>
+	<TD.GizmoUrgentRefillDesc>If any cell is unoccupied, it will be urgently refilled</TD.GizmoUrgentRefillDesc>
+	<TD.SettingHeaderArea>Area / Zone things</TD.SettingHeaderArea>
+	<TD.SettingHeaderOverlays>Overlays</TD.SettingHeaderOverlays>
+	<TD.SettingHeaderAI>AI / behavior</TD.SettingHeaderAI>
+	<TD.SettingCleanZoneEdges>Cleaner zone edges (And range indicators)</TD.SettingCleanZoneEdges>
+	<TD.SettingsHeaderArea>Area / Zone things</TD.SettingsHeaderArea>
+	<TD.SettingsCleanZone>Cleaner zone edges (And range indicators)</TD.SettingsCleanZone>
+	<TD.SettingsHeaderOverlays>Overlays</TD.SettingsHeaderOverlays>
+	<TD.SettingsHeaderGame>Game improvements</TD.SettingsHeaderGame>
+	<TD.SettingsHeaderInfo>UI / Info</TD.SettingsHeaderInfo>
+	<TD.SettingsHeaderAlerts>Alerts</TD.SettingsHeaderAlerts>
+	<TD.SettingsHeaderAI>AI / behavior</TD.SettingsHeaderAI>
+	<TD.EmptyWorkbench>Empty Workbench</TD.EmptyWorkbench>
+	<TD.EmptyWorkbenchDesc>There is a workbench with no work bills set up</TD.EmptyWorkbenchDesc>
+	<TD.ClearEntireArea>Clear entire area (but don't delete from the list)</TD.ClearEntireArea>
+	<TD.PasteFrom>Paste from</TD.PasteFrom>
+	<TD.AlertBurning>A colonist is burning, and is rapidly gaining heatstroke.</TD.AlertBurning>
+	<TD.AlertHeatstrike>A colonist is gaining heatstroke. That's not a good thing.</TD.AlertHeatstrike>
+	<TD.AlertToxic>A colonist has non-trivial levels of toxic buildup. That's not a good thing.</TD.AlertToxic>
+	<TD.SettingRememberResourceReadout>Resource readout state is saved per-game (categorized mode)</TD.SettingRememberResourceReadout>
+	<TD.SettingNewGameOpenResourceReadout>New game: resource readout starts with each category open</TD.SettingNewGameOpenResourceReadout>
+	<TD.AlertWindBlocked>Alert for wind-blocked turbines</TD.AlertWindBlocked>
+	<TD.WindBlocked>Wind blocked</TD.WindBlocked>
+	<TD.WindBlockedDesc>Something is blocking wind, and you probably don't want it blocking wind</TD.WindBlockedDesc>
+	<TD.Show>Show "{0}"</TD.Show>
+	<TD.SettingHeaderToggleButtons>Show/Hide Toggle Buttons (at bottom-right)</TD.SettingHeaderToggleButtons>
+	<TD.SettingHeaderToggleButtonsDesc>Since this mod adds so many overlay toggles, how about we remove some of those buttons you never use:</TD.SettingHeaderToggleButtonsDesc>
+	<TD.MakeCopy>Make Copy</TD.MakeCopy>
+	<TD.WarningReColorAll>That button will change the color of a lot of things. You may want to back up your save file unless you're sure you want colors changed.</TD.WarningReColorAll>
+	<TD.OKIGetIt>OK, I get it</TD.OKIGetIt>
+	<TD.HoldOn>Hold on</TD.HoldOn>
+	<TD.SettingHeaderColorVariations>Color Variations</TD.SettingHeaderColorVariations>
+	<TD.SettingColorVariation>Apply a slight color variation on crafted items</TD.SettingColorVariation>
+	<TD.SettingColorVariationDesc>Specifically, up to +/- 5% on HSV.\n\nApparel only, since weapons are not as color-customizable.</TD.SettingColorVariationDesc>
+	<TD.SettingColorGenerator>Use the color generator on crafted items</TD.SettingColorGenerator>
+	<TD.SettingColorGeneratorDesc>You know those items that other factions get in many colors - you can too!</TD.SettingColorGeneratorDesc>
+	<TD.SettingColorGeneratorChance>Chance to use color generator instead of ingredient color:</TD.SettingColorGeneratorChance>
+	<TD.SettingColorGenNoVariation>Don't use the above color variation when color generator is used</TD.SettingColorGenNoVariation>
+	<TD.SettingReapplyColorVariations>Re-apply color variations to all current things</TD.SettingReapplyColorVariations>
+	<TD.Go>Go</TD.Go>
+	<TD.SettingReapplyColorVariationsDesc>(This also applies the last two options, whether or not they are checked)</TD.SettingReapplyColorVariationsDesc>
+	<TD.SettingFixColorStuff>Fix to use correct color of ingredient</TD.SettingFixColorStuff>
+	<TD.SettingFixColorStuffDesc>For example, there should be no white-colored flak armor. It gets the 'white' from steel, but steel should be grey, like it is with weapons. It's only 'white' because the steel .png file is already colored, unlike cloth/leather. Also: Plasteel-colored marine armor looks cool!</TD.SettingFixColorStuffDesc>
+	<TD.SettingFixUncoloredStuff>Ignore uncolored ingredients</TD.SettingFixUncoloredStuff>
+	<TD.SettingFixUncoloredStuffDesc>Some all-white armor is due to components not having a color at all. Components should not be able to impart their non-color to the items crafted from them.</TD.SettingFixUncoloredStuffDesc>
+	<TD.ShowThisAreaForColonists>Show this area for colonists</TD.ShowThisAreaForColonists>
+	<TD.ShowThisAreaForAnimals>Show this area for animals</TD.ShowThisAreaForAnimals>
+	<TD.JumpToThisObject>Jump to this object</TD.JumpToThisObject>
+	<TD.CycleJumpingToTheseObjects>Cycle jumping to these objects</TD.CycleJumpingToTheseObjects>
+	<TD.NoLimitOnTheNumberOfAreas>No limit on the number of areas</TD.NoLimitOnTheNumberOfAreas>
+	<TD.SettingJumpToSelectedItems>In the selection info panel, show a button to jump to selected items</TD.SettingJumpToSelectedItems>
+	<TD.SettingStopForcedSlowdown>Can Shift-click the time controls to stop the forced slowdown during a battle</TD.SettingStopForcedSlowdown>
+	
+	<TD.ConfirmRestoreAllSettings>Really restore all settings?</TD.ConfirmRestoreAllSettings>
+	<TD.FeatureConfirmRestoreSettings>'Restore settings' button has confirmation, and saves a backup</TD.FeatureConfirmRestoreSettings>
+	
+
+	<TD.RotStatDesc>The number of days until this item will rot when left outside.\n\nThis can be prevented by refrigerating or freezing the item.</TD.RotStatDesc>
+	<TD.CurrentTimeToRot>Current time to rot</TD.CurrentTimeToRot>
+	<TD.ShelfLife>Shelf life</TD.ShelfLife>
+	
+
+
+</LanguageData>
