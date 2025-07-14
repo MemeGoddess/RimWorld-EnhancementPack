@@ -156,13 +156,13 @@ namespace TD_Enhancement_Pack
 
 			foreach (CodeInstruction i in instructions)
 			{
-				//IL_0055: callvirt instance valuetype[UnityEngine]UnityEngine.Rect Verse.WidgetRow::Icon(class [UnityEngine] UnityEngine.Texture2D, string)
-				if (i.Calls(IconInfo))
-				{
-					yield return new CodeInstruction(OpCodes.Ldarg_2); //Area
-					yield return new CodeInstruction(OpCodes.Call, DoButtonIconInfo); //WidgetRow
-					continue;
-				}
+				////IL_0055: callvirt instance valuetype[UnityEngine]UnityEngine.Rect Verse.WidgetRow::Icon(class [UnityEngine] UnityEngine.Texture2D, string)
+				//if (i.Calls(IconInfo))
+				//{
+				//	yield return new CodeInstruction(OpCodes.Ldarg_2); //Area
+				//	yield return new CodeInstruction(OpCodes.Call, DoButtonIconInfo); //WidgetRow
+				//	continue;
+				//}
 
 				if (i.Calls(EndGroupInfo))
 				{

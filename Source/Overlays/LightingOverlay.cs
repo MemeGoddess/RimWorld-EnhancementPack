@@ -67,7 +67,7 @@ namespace TD_Enhancement_Pack
 		}
 	}
 
-	[HarmonyPatch(typeof(GlowGrid), "DirtyCache")]
+	[HarmonyPatch(typeof(GlowGrid), nameof(GlowGrid.DirtyCell))]
 	static class GlowGridDirty_Patch
 	{
 		public static void Postfix(Map ___map)

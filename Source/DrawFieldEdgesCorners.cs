@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace TD_Enhancement_Pack
 {
-	[HarmonyPatch(typeof(GenDraw), "DrawFieldEdges", new Type[] { typeof(List<IntVec3>), typeof(Color), typeof(float?) } )]
+	[HarmonyPatch(typeof(GenDraw), "DrawFieldEdges", new Type[] { typeof(List<IntVec3>), typeof(Color), typeof(float?), typeof(HashSet<IntVec3>), typeof(int) } )]
 	class DrawFieldEdgesCorners
 	{
 		private static BoolGrid fieldGrid;

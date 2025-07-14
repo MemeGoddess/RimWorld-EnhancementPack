@@ -12,7 +12,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ReleaseFiles Include="About\**;Defs\**;Patches\**;Languages\**;Sounds\**;Textures\**;News\**;LoadFolders.xml" Exclude="About\About-Release.xml;About\About.xml" />
-    <AboutFiles Include="About\About-Release.xml;About\About.xml" />
+    <AboutFiles Include="About\About-Release.xml" />
+    <AboutFiles Include="About\About.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="setup.ps1" />

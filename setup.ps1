@@ -17,9 +17,8 @@ function workshop {
     $workshopItems = ""
 
     if (Test-Path $workshopItemsFile) {
-        $workshopItems = Get-Content $workshopItemsFile | Where-Object { $_ -ne "" }
-        $workshopItemsString = $workshopItems -join " "
-        Write-Host "Workshop items: $workshopItemsString"
+        $workshopItems = Get-Content $workshopItemsFile | Where-Object { $_ -ne "" } | ForEach-Object { "+workshop_download_item 294100 $_" }
+        Write-Host "Workshop items: '$workshopItems'"
     } else {
         Write-Host "RequiredWorkshopItems.txt file not found. Nothing to download."
         return
@@ -33,8 +32,7 @@ function workshop {
     }
 
     # Download workshop items for appid 294100
-    Write-Host "Downloading workshop item ID: $itemId"
-    &steamcmd +force_install_dir $downloadPath +login $STEAM_USER +workshop_download_item 294100 $workshopItems  +quit
+    &steamcmd +force_install_dir $downloadPath +login $STEAM_USER $workshopItems +quit
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to download workshop item ID: $itemId"
