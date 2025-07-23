@@ -3,14 +3,7 @@ function workshop {
         Write-Host "steamcmd is installed."
     } else {
         Write-Host "steamcmd is not installed."
-        return
-    }
-
-    $STEAM_USER = Read-Host "Please enter your Steam username"
-
-    if (-not $STEAM_USER) {
-        Write-Host "Steam username cannot be empty. Unable to download workshop items."
-        return
+        exit 1
     }
 
     $workshopItemsFile = "RequiredWorkshopItems.txt"
@@ -21,7 +14,7 @@ function workshop {
         Write-Host "Workshop items: '$workshopItems'"
     } else {
         Write-Host "RequiredWorkshopItems.txt file not found. Nothing to download."
-        return
+        exit 1
     }
 
     # Set the download location to Workshop
@@ -32,10 +25,11 @@ function workshop {
     }
 
     # Download workshop items for appid 294100
-    &steamcmd +force_install_dir $downloadPath +login $STEAM_USER $workshopItems +quit
+    &steamcmd +force_install_dir $downloadPath +login anonymous $workshopItems +quit
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Failed to download workshop item ID: $itemId"
+        exit 1
     }
 
     Write-Host "Workshop items downloaded successfully."
