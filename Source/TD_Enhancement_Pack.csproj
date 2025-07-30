@@ -37,15 +37,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4518" />
     <PackageReference Include="Lib.Harmony" Version="2.*">
       <ExcludeAssets>runtime</ExcludeAssets>

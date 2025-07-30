@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace TD_Enhancement_Pack
 {
-	[HarmonyPatch(typeof(PlaySettings), nameof(PlaySettings.DoPlaySettingsGlobalControls))]
+	[HarmonyPatch(typeof(PlaySettings), "DoMapControls")]
 	class RemoveUnusedToggles
 	{
 		//public void DoPlaySettingsGlobalControls(WidgetRow row, bool worldView)
