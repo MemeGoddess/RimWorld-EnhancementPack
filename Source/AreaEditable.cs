@@ -22,6 +22,7 @@ namespace TD_Enhancement_Pack
 		public static readonly Texture2D Clear = ContentFinder<Texture2D>.Get("UI/Buttons/DragHash");
 
 		public static readonly Texture2D PersonIcon = ContentFinder<Texture2D>.Get("PersonIcon");
+		public static readonly Texture2D MechIcon = ContentFinder<Texture2D>.Get("MechIcon");
 		public static readonly Texture2D AnimalIcon = ContentFinder<Texture2D>.Get("AnimalIcon");
 	}
 
@@ -77,7 +78,7 @@ namespace TD_Enhancement_Pack
 		public static Vector2 scrollPosition;
 		public static float scrollViewHeight;
 		public static Rect viewRect;//local to DoWindowContents
-		public const int NumButtonsRightOfThis = 2;
+		public const int NumButtonsRightOfThis = 1;
 
 		public static void BeginScrollAndHeader(Listing_Standard listing, Rect rect)
 		{
@@ -95,6 +96,10 @@ namespace TD_Enhancement_Pack
 
 				Widgets.DrawTextureFitted(headerRect, TexButton.PersonIcon, 1f);
 				TooltipHandler.TipRegion(headerRect, "TD.ShowThisAreaForColonists".Translate());
+
+				headerRect.x -= 24;
+				Widgets.DrawTextureFitted(headerRect, TexButton.MechIcon, 1f);
+				TooltipHandler.TipRegion(headerRect, "TD.ShowThisAreaForMechs".Translate());
 
 				headerRect.x -= 24;
 				Widgets.DrawTextureFitted(headerRect, TexButton.AnimalIcon, 1f);
@@ -212,6 +217,16 @@ namespace TD_Enhancement_Pack
 						comp.notForAnimals.Remove(area);
 					else
 						comp.notForAnimals.Add(area);
+				}
+
+				//Mechs checkbox
+				bool forMechs = !comp.notForMechs.Contains(area);
+				if (widgetRow.Checkbox(ref forMechs))
+				{
+					if (forMechs)
+						comp.notForMechs.Remove(area);
+					else
+						comp.notForMechs.Add(area);
 				}
 
 				//Colonists checkbox
@@ -474,6 +489,7 @@ namespace TD_Enhancement_Pack
 		//Default is on, so keep a list of off.
 		//New areas aren't added, and loaded games will default an empty list with nothing off, so all on.
 		public HashSet<Area> notForColonists = new HashSet<Area>();
+		public HashSet<Area> notForMechs = new HashSet<Area>();
 		public HashSet<Area> notForAnimals = new HashSet<Area>();
 
 		public MapComponent_AreaOrder(Map map) : base(map)
@@ -539,6 +555,7 @@ namespace TD_Enhancement_Pack
 				InitIndex();
 
 			Scribe_Collections.Look(ref notForColonists, "notForColonists", LookMode.Reference);
+			Scribe_Collections.Look(ref notForMechs, "notForMechs", LookMode.Reference);
 			Scribe_Collections.Look(ref notForAnimals, "notForAnimals", LookMode.Reference);
 		}
 	}
@@ -572,6 +589,8 @@ namespace TD_Enhancement_Pack
 			var comp = area.Map.GetComponent<MapComponent_AreaOrder>();
 			if (p.IsColonist)
 				return !comp.notForColonists.Contains(area);
+			else if (p.RaceProps.IsMechanoid)
+				return !comp.notForMechs.Contains(area);
 			else
 				return !comp.notForAnimals.Contains(area);
 		}
