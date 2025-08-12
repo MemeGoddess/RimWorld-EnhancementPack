@@ -22,6 +22,9 @@ namespace TD_Enhancement_Pack
 			MethodInfo vee = AccessTools.Method("VEE.HarmonyInit:AddDroughtLine"); // VE Events
 			if( vee != null )
 				yield return vee;
+			MethodInfo dbh = AccessTools.Method("DubsBadHygiene.Patches.HarmonyPatches_Fertilizer/H_MouseoverReadoutOnGUI:AddSewageLine");
+			if( dbh != null ) // Dubs Bad Hygiene
+				yield return dbh;
 		}
 
 		//public void MouseoverReadoutOnGUI()
