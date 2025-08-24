@@ -20,31 +20,32 @@ namespace TD_Enhancement_Pack
 		private static Texture2D StopIcon = ContentFinder<Texture2D>.Get("Stop", true);
 
 		//public override IEnumerable<Gizmo> GetGizmos()
-		public static void Postfix(ref IEnumerable<Gizmo> __result, Pawn __instance)
+		public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> result, Pawn __instance)
 		{
-			if (__instance.Drafted ? !Mod.settings.showStopGizmoDrafted : !Mod.settings.showStopGizmo) return;
+			foreach( Gizmo gizmo in result )
+				yield return gizmo;
 
-			if (Find.World.renderer.wantedMode != WorldRenderMode.None) return;
+			if (__instance.Drafted ? !Mod.settings.showStopGizmoDrafted : !Mod.settings.showStopGizmo) yield break;
+
+			if (Find.World.renderer.wantedMode != WorldRenderMode.None) yield break;
 
 
 			if (!DebugSettings.godMode)
 			{
 				if (!(__instance.drafter?.ShowDraftGizmo ?? false))
-					return;
+					yield break;
 
 				if (__instance.jobs.curJob != null && !__instance.jobs.IsCurrentJobPlayerInterruptible())
-					return;
+					yield break;
 
 				if (__instance.Downed || __instance.Deathresting)
-					return;
+					yield break;
 
 				if (ModsConfig.BiotechActive && __instance.IsColonyMech && !MechanitorUtility.CanDraftMech(__instance))
-					return;
+					yield break;
 			}
 
-			List<Gizmo> result = __result.ToList();
-			
-			result.Add(new Command_Action()
+			yield return new Command_Action()
 			{
 				defaultLabel = "TD.StopGizmo".Translate(),
 				icon = StopIcon,
@@ -58,9 +59,7 @@ namespace TD_Enhancement_Pack
 				},
 				hotKey = KeyBindingDefOf.Designator_Deconstruct,
 				Order = -30f
-			});
-
-			__result = result;
+			};
 		}
 	}
 }
