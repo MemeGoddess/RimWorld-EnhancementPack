@@ -105,4 +105,19 @@ namespace TD_Enhancement_Pack
 		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
 			 => MouseoverOnTopRight.Transpiler(instructions);
 	}
+
+	[HarmonyPatch]
+	public static class Patch_MouseoverReadout_ShouldShow
+	{
+		static MethodBase TargetMethod() =>
+			AccessTools.PropertyGetter(typeof(MouseoverReadout), "ShouldShow");
+
+		static bool Prefix(ref bool __result)
+		{
+			if (!Mod.settings.mouseoverInfoTopRight) return true;
+
+			__result = true;
+			return false;
+		}
+	}
 }
