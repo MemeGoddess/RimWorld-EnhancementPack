@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Linq;
 using System.Text;
 using HarmonyLib;
@@ -557,6 +558,16 @@ namespace TD_Enhancement_Pack
 			Scribe_Collections.Look(ref notForColonists, "notForColonists", LookMode.Reference);
 			Scribe_Collections.Look(ref notForMechs, "notForMechs", LookMode.Reference);
 			Scribe_Collections.Look(ref notForAnimals, "notForAnimals", LookMode.Reference);
+		}
+
+		// Easy to use accessors for other mods.
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		public static bool IsForColonists(Area area)
+		{
+			if (!Mod.settings.areaForTypes)
+				return true;
+			var comp = area.Map.GetComponent<MapComponent_AreaOrder>();
+			return !comp.notForColonists.Contains(area);
 		}
 	}
 
