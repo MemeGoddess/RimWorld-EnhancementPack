@@ -38,6 +38,10 @@
       <HintPath>..\Workshop\steamapps\workshop\content\294100\3524716849\1.6\Assemblies\KeyzAllowUtilities.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Mashed_Ashlands">
+      <HintPath>..\Workshop\steamapps\workshop\content\294100\3109835541\1.6\Assemblies\Mashed_Ashlands.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +49,10 @@
     <PackageReference Include="Lib.Harmony" Version="2.*">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MashedAshlands\" />
   </ItemGroup>
 
 </Project>
