@@ -32,19 +32,28 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	public static class UrgentRefill
 	{
-		public static bool active;
+		public static ModToUse urgentRefillMod;
 		static UrgentRefill()
 		{
-			active = false;
+			urgentRefillMod = ModToUse.None;
 			if (!Mod.settings.zoneRefill) return;
 			try
 			{
-				TryUrgentRefill();
-				active = true;
+				TryAugentRefillUsingAllowTool();
+				urgentRefillMod = ModToUse.AllowTool;
+				Log.Message("Loaded urgentRefill using Allow Tool");
+			}
+			catch (Exception) { }
+
+			try
+			{
+				TryAugentRefillUsingKeyzAllowUtil();
+				urgentRefillMod = ModToUse.KeyzAllowUtil;
+				Log.Message("Loaded urgentRefill using Keyz' Allow Utilities");
 			}
 			catch (Exception) { }
 		}
-		public static void TryUrgentRefill()
+		public static void TryAugentRefillUsingAllowTool()
 		{ 
 			WorkGiverDef urgentRefillDef = new WorkGiverDef()
 			{
@@ -61,6 +70,25 @@ namespace TD_Enhancement_Pack
 			DefDatabase<WorkGiverDef>.Add(urgentRefillDef);
 			AllowToolDefOf.HaulingUrgent.workGiversByPriority.Add(urgentRefillDef);
 			AllowToolDefOf.HaulingUrgent.workGiversByPriority.SortBy(g => g.priorityInType);
+		}
+
+		public static void TryAugentRefillUsingKeyzAllowUtil()
+		{
+			WorkGiverDef urgentRefillDef = new WorkGiverDef()
+			{
+				defName = "HaulUrgentlyRefill",
+				label = "TD.WorkGiverRefillZones".Translate(),
+				giverClass = typeof(WorkGiver_HaulUrgentlyRefill),
+				workType = KeyzAllowUtilities.KeyzAllowUtilitesDefOf.KAU_UrgentHaul,
+				verb = "TD.RefillingUrgently".Translate(),
+				gerund = "TD.RefillingUrgently".Translate(),
+				priorityInType = 100,
+				directOrderable = false,
+				requiredCapacities = new List<PawnCapacityDef>() { PawnCapacityDefOf.Manipulation }
+			};
+			DefDatabase<WorkGiverDef>.Add(urgentRefillDef);
+			KeyzAllowUtilities.KeyzAllowUtilitesDefOf.KAU_UrgentHaul.workGiversByPriority.Add(urgentRefillDef);
+			KeyzAllowUtilities.KeyzAllowUtilitesDefOf.KAU_UrgentHaul.workGiversByPriority.SortBy(g => g.priorityInType);
 		}
 	}
 
@@ -120,19 +148,25 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	internal static class SlotGroup_GetGizmos_Patch
 	{
-		public static Texture2D haulUrgentlyIcon = ContentFinder<Texture2D>.Get("haulUrgently", false);
+		public static Texture2D haulUrgentlyAllowTool = ContentFinder<Texture2D>.Get("haulUrgently", false);
+		public static Texture2D HaulUrgentAllowUtil = ContentFinder<Texture2D>.Get("UI/KUA_ToggleHaulUrgently", false);
 
 		public static IEnumerable<Gizmo> InsertUrgentRefillGizmos(IEnumerable<Gizmo> __result, Map map, ISlotGroupParent parent)
 		{
 			foreach (var r in __result)
 				yield return r;
-			if (!UrgentRefill.active) yield break;
+			if (UrgentRefill.urgentRefillMod == ModToUse.None) yield break;
 			SlotGroup group = parent.GetSlotGroup();
 			yield return new Command_Toggle()
 			{
 				defaultLabel = "TD.GizmoUrgentRefill".Translate(),
 				defaultDesc = "TD.GizmoUrgentRefillDesc".Translate(),
-				icon = haulUrgentlyIcon,
+				icon = UrgentRefill.urgentRefillMod switch
+				{
+				  ModToUse.AllowTool => haulUrgentlyAllowTool,
+				  ModToUse.KeyzAllowUtil => HaulUrgentAllowUtil,
+				  _ => throw new NotImplementedException(),
+				},
 				isActive = () => group.IsMarkedForRefill(map),
 				toggleAction = delegate
 				{
@@ -230,5 +264,12 @@ namespace TD_Enhancement_Pack
 				slotGroupParent.GetSlotGroup() is SlotGroup slotGroup)
 				slotGroup.MarkForRefill(___map,  false);
 		}
+	}
+
+	public enum ModToUse
+	{
+		None,
+		AllowTool,
+		KeyzAllowUtil
 	}
 }

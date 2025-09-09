@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <RootNamespace>TD_Enhancement_Pack</RootNamespace>
     <AssemblyName>TD_Enhancement_Pack</AssemblyName>
     <OutputType>Library</OutputType>
@@ -32,6 +32,10 @@
   <ItemGroup>
     <Reference Include="AllowTool">
       <HintPath>..\Workshop\steamapps\workshop\content\294100\761421485\Assemblies\AllowTool.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="KeyzAllowUtilities">
+      <HintPath>..\Workshop\steamapps\workshop\content\294100\3524716849\1.6\Assemblies\KeyzAllowUtilities.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
