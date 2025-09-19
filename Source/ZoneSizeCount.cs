@@ -34,7 +34,7 @@ namespace TD_Enhancement_Pack
 
 		public static string AppendFertileCount(string baseString, Zone_Growing zone)
 		{
-			if (!Mod.settings.showGrowingFertilitySize) return baseString;
+			if (!Mod.settings.showGrowingFertilitySize || zone is null) return baseString;
 
 			float fertCount = zone.CellCount + 
 				zone.GetPlantDefToGrow().plant.fertilitySensitivity
