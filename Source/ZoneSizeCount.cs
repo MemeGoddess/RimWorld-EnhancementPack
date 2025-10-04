@@ -37,7 +37,7 @@ namespace TD_Enhancement_Pack
 			if (!Mod.settings.showGrowingFertilitySize || zone is null) return baseString;
 
 			float fertCount = zone.CellCount + 
-				zone.GetPlantDefToGrow().plant.fertilitySensitivity
+				(zone.GetPlantDefToGrow()?.plant?.fertilitySensitivity ?? 1f)
 				* zone.cells.Sum(cell => zone.Map.fertilityGrid.FertilityAt(cell) - 1.0f);
 			return $"{baseString} ({"TD.FertileCount".Translate()}: {fertCount:0.0})";
 		}
