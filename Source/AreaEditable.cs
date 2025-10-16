@@ -49,6 +49,20 @@ namespace TD_Enhancement_Pack
 	*/
 
 
+	//public override Vector2 InitialSize => new Vector2(550f, 400f);
+	[HarmonyPatch(typeof(Dialog_ManageAreas))]
+	[HarmonyPatch("InitialSize")]
+	[HarmonyPatch(MethodType.Getter)]
+	static class Dialog_ManageAreas_InitialSize_Patch
+	{
+		public static Vector2 Postfix(Vector2 result)
+		{
+			if (Mod.settings.areaForTypes)
+				result.x += 25;
+			return result;
+		}
+	}
+
 	//public override void DoWindowContents(Rect inRect)
 	[HarmonyPatch(typeof(Dialog_ManageAreas))]
 	[HarmonyPatch("DoWindowContents")]
@@ -79,7 +93,7 @@ namespace TD_Enhancement_Pack
 		public static Vector2 scrollPosition;
 		public static float scrollViewHeight;
 		public static Rect viewRect;//local to DoWindowContents
-		public const int NumButtonsRightOfThis = 1;
+		public const int NumButtonsRightOfThis = 2;
 
 		public static void BeginScrollAndHeader(Listing_Standard listing, Rect rect)
 		{
