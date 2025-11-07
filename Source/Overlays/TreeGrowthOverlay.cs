@@ -36,7 +36,7 @@ namespace TD_Enhancement_Pack
 
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
-		public override Type AutoDesignator() => typeof(Designator_PlantsHarvestWood);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]

@@ -71,7 +71,7 @@ namespace TD_Enhancement_Pack.Overlays
 		}
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayBuildable;
-		public override Type AutoDesignator() => typeof(Designator_Place);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_Place) ];
 
 		public static Texture2D icon = ContentFinder<Texture2D>.Get("UI/Icons/ThingCategories/StoneBlocks", true);
 		public override Texture2D Icon() => icon;

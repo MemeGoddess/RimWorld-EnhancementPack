@@ -41,7 +41,7 @@ namespace TD_Enhancement_Pack
 		}
 		
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayFertility;
-		public override Type AutoDesignator() => typeof(Designator_ZoneAdd_Growing);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_ZoneAdd_Growing) ];
 
 		private static Texture2D icon = ContentFinder<Texture2D>.Get("CornPlantIcon", true);
 		public override Texture2D Icon() => icon;

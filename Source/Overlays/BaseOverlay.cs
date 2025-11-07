@@ -109,14 +109,14 @@ namespace TD_Enhancement_Pack
 			BaseOverlay.GetOverlay(type).SetDirty();
 		}
 
-		public virtual Type AutoDesignator() => null;
+		public virtual IEnumerable<Type> AutoDesignator() => null;
 		public virtual bool DesignatorVerifier(Designator des) => true;
 
 		public bool AutoDraw()
 		{
 			Designator des = Find.DesignatorManager.SelectedDesignator;
 			return des != null && 
-				AutoDesignator().IsAssignableFrom(des.GetType()) &&	
+				AutoDesignator().Any(x => x.IsInstanceOfType(des)) &&	
 				DesignatorVerifier(des);
 		}
 

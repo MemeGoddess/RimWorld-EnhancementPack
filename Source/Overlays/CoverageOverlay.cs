@@ -84,7 +84,7 @@ namespace TD_Enhancement_Pack.Overlays
 		}
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayCoverage;
-		public override Type AutoDesignator() => typeof(Designator_Place);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_Place) ];
 		public static Texture2D TexIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Add", true);
 		public override Texture2D Icon() => TexIcon;
 		public override bool IconEnabled() => Mod.settings.showOverlayCoverage;

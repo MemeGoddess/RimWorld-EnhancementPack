@@ -58,7 +58,7 @@ namespace TD_Enhancement_Pack
 		public override string IconTip() => "TD.ToggleLighting".Translate();
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayLighting;
-		public override Type AutoDesignator() => typeof(Designator_Build);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_Build) ];
 		public override bool DesignatorVerifier(Designator des)
 		{
 			return des is Designator_Build desBuild &&

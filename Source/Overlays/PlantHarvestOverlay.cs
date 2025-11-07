@@ -33,7 +33,7 @@ namespace TD_Enhancement_Pack
 
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayPlantHarvest;
-		public override Type AutoDesignator() => typeof(Designator_PlantsHarvest);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvest), typeof(Designator_PlantsCut) ];
 
 		public static Texture2D icon = ContentFinder<Texture2D>.Get("UI/Designators/Harvest", true);
 		public override Texture2D Icon() => icon;

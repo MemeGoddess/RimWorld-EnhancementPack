@@ -26,7 +26,7 @@ namespace TD_Enhancement_Pack
 
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayWindBlocker;
-		public override Type AutoDesignator() => typeof(Designator_Build);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_Build) ];
 		public override bool DesignatorVerifier(Designator des)
 		{
 			return des is Designator_Build desBuild &&

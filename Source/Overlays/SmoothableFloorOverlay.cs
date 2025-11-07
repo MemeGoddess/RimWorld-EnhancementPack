@@ -27,7 +27,7 @@ namespace TD_Enhancement_Pack
 		public override Color GetCellExtraColor(int index) => Color.green;
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlaySmoothable;
-		public override Type AutoDesignator() => typeof(Designator_SmoothSurface);
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_SmoothSurface) ];
 	}
 
 	[HarmonyPatch(typeof(TerrainGrid), "DoTerrainChangedEffects")]
