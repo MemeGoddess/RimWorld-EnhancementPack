@@ -11,7 +11,78 @@ using UnityEngine;
 
 namespace TD_Enhancement_Pack
 {
-	[HarmonyPatch(typeof(PlaySettings), "DoMapControls")]
+	[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls")]
+	
+	class RemoveToggles
+	{
+		private static bool Running = false;
+		private static bool CapturingLabels = false;
+		public static List<(string, Texture2D)> labels;
+		[HarmonyPriority(Priority.First)]
+		public static bool Prefix()
+		{
+ 			Running = true;
+			return true;
+		}
+
+		[HarmonyPriority(Priority.Last)]
+		public static void Postfix()
+		{
+			CapturingLabels = false;
+			Running = false;
+		}
+
+		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ToggleableIcon))]
+		[HarmonyPrefix]
+		public static bool ToggleableIconRendering(ref bool toggleable,
+			Texture2D tex,
+			string tooltip,
+			SoundDef mouseoverSound = null,
+			string tutorTag = null)
+		{
+			return ShouldRender(tex);
+		}
+
+		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ButtonIcon))]
+		[HarmonyPrefix]
+		public static bool ButtonIconRendering(
+			Texture2D tex,
+			string tooltip = null,
+			Color? mouseoverColor = null,
+			Color? backgroundColor = null,
+			Color? mouseoverBackgroundColor = null,
+			bool doMouseoverSound = true,
+			float overrideSize = -1f)
+		{
+
+			return ShouldRender(tex);
+		}
+
+		public static bool ShouldRender(Texture2D tex)
+		{
+			if (!Running)
+				return true;
+
+			if (labels == null)
+			{
+				labels = new List<(string, Texture2D)>();
+				CapturingLabels = true;
+			}
+
+			if (CapturingLabels)
+				labels.Add((tex.name, tex));
+
+			if (!Mod.settings.toggleShowButtons.TryGetValue(tex.name, out var val))
+			{
+				Mod.settings.toggleShowButtons[tex.name] = true;
+				return true;
+			}
+
+			return val;
+		}
+	}
+
+  //[HarmonyPatch(typeof(PlaySettings), "DoMapControls")]
 	class RemoveUnusedToggles
 	{
 		//public void DoPlaySettingsGlobalControls(WidgetRow row, bool worldView)

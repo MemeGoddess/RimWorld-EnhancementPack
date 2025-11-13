@@ -4,6 +4,7 @@ using UnityEngine;
 using Verse;
 using RimWorld;
 using TD.Utilities;
+using System.Linq;
 
 namespace TD_Enhancement_Pack
 {
@@ -117,6 +118,10 @@ namespace TD_Enhancement_Pack
 
 		public Vector2 scrollPosition;
 		public float scrollViewHeight;
+		public Dictionary<string, bool> toggleShowButtons = new Dictionary<string, bool>()
+		{
+			{"ShowBeauty", false}
+		};
 
 		public void DoWindowContents(Rect wrect)
 		{
@@ -179,18 +184,81 @@ namespace TD_Enhancement_Pack
 			//Hide bottom-right Toggleable buttons
 			options.LabelHeader("TD.SettingHeaderToggleButtons".Translate());
 			options.Label("TD.SettingHeaderToggleButtonsDesc".Translate());
-			options.CheckboxLabeled("TD.Show".Translate("ShowLearningHelperWhenEmptyToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowLearningHelper);
-			options.CheckboxLabeled("TD.Show".Translate("ZoneVisibilityToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowZones);
-			options.CheckboxLabeled("TD.Show".Translate("ShowBeautyToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowBeauty);
-			options.CheckboxLabeled("TD.Show".Translate("ShowRoomStatsToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowRoomStats);
-			options.CheckboxLabeled("TD.Show".Translate("ShowColonistBarToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowColonistBar);
-			options.CheckboxLabeled("TD.Show".Translate("ShowRoofOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowRoofOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("ShowFertilityOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowFertilityOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("ShowTerrainAffordanceOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowTerrainAffordanceOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("AutoHomeAreaToggleButton".Translate().RawText.Split('\n')[0]), ref toggleAutoHomeArea);
-			options.CheckboxLabeled("TD.Show".Translate("AutoRebuildButton".Translate().RawText.Split('\n')[0]), ref toggleAutoRebuild);
-			options.CheckboxLabeled("TD.Show".Translate("ShowTemperatureOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowTemperatureOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("CategorizedResourceReadoutToggleButton".Translate().RawText.Split('\n')[0]), ref toggleCategorizedResourceReadout);
+
+			if (RemoveToggles.labels == null)
+			{
+				options.Label("Load map first");
+			}
+			else
+			{
+				//foreach (var (setting, label) in RemoveToggles.labels)
+				//{
+				//	var checkedValue = toggleShowButtons[setting];
+				//	var button = options.ButtonImage(label, 24f, 24f);
+				//	if(button)
+				//		toggleShowButtons[setting] = !checkedValue;
+				//}
+
+				int cols = 5;
+				float buttonSize = 24f;
+				float spacing = 4f;
+
+				var data = RemoveToggles.labels.ToList();
+				int count = data.Count;
+
+				// How many rows the grid will use
+				int rows = Mathf.CeilToInt(count / (float)cols);
+
+				// Total height needed
+				float totalHeight = rows * buttonSize + (rows - 1) * spacing;
+				Rect gridRect = options.GetRect(totalHeight);
+
+				GUI.BeginGroup(gridRect);
+
+				for (int i = 0; i < count; i++)
+				{
+					// Natural left→right order
+					int naturalRow = i / cols;   // row 0 = first items
+					int naturalCol = i % cols;   // col 0 = leftmost
+
+					// Flip vertically so natural row 0 becomes bottom row
+					int row = (rows - 1) - naturalRow;
+					int col = (cols - 1) - naturalCol;
+
+					float x = col * (buttonSize + spacing);
+					float y = row * (buttonSize + spacing);
+
+					var (setting, tex) = data[i];
+					bool checkedValue = toggleShowButtons[setting];
+
+					Rect rect = new Rect(x, y, buttonSize, buttonSize);
+
+					Color oldColor = GUI.color;
+					if (!toggleShowButtons[setting])
+						GUI.color = new Color(1f, 1f, 1f, 0.5f);
+					if (Widgets.ButtonImage(rect, tex))
+						toggleShowButtons[setting] = !checkedValue;
+					GUI.color = oldColor; // ALWAYS restore
+				}
+
+				GUI.EndGroup();
+
+			}
+
+
+
+			//options.CheckboxLabeled("TD.Show".Translate("ShowLearningHelperWhenEmptyToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowLearningHelper);
+			//options.CheckboxLabeled("TD.Show".Translate("ZoneVisibilityToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowZones);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowBeautyToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowBeauty);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowRoomStatsToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowRoomStats);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowColonistBarToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowColonistBar);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowRoofOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowRoofOverlay);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowFertilityOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowFertilityOverlay);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowTerrainAffordanceOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowTerrainAffordanceOverlay);
+			//options.CheckboxLabeled("TD.Show".Translate("AutoHomeAreaToggleButton".Translate().RawText.Split('\n')[0]), ref toggleAutoHomeArea);
+			//options.CheckboxLabeled("TD.Show".Translate("AutoRebuildButton".Translate().RawText.Split('\n')[0]), ref toggleAutoRebuild);
+			//options.CheckboxLabeled("TD.Show".Translate("ShowTemperatureOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowTemperatureOverlay);
+			//options.CheckboxLabeled("TD.Show".Translate("CategorizedResourceReadoutToggleButton".Translate().RawText.Split('\n')[0]), ref toggleCategorizedResourceReadout);
 			if (ModsConfig.BiotechActive)	// Mainly so that the translation key exists
 				options.CheckboxLabeled("TD.Show".Translate("ShowPollutionOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowPollutionOverlay);
 			options.GapLine();
