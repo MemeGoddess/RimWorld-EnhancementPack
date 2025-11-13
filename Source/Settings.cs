@@ -218,11 +218,14 @@ namespace TD_Enhancement_Pack
 						if(setting == "ShowFertilityOverlay")
 							BaseOverlay.SetDirty(typeof(FertilityOverlay));
 					}
-
 					GUI.color = oldColor;
+
+					Widgets.DrawHighlightIfMouseover(rect);
+
 				}
 
 				GUI.EndGroup();
+				options.Gap();
 
 			}
 
