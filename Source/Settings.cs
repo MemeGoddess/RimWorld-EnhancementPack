@@ -171,7 +171,7 @@ namespace TD_Enhancement_Pack
 			{
 				var color = GUI.color;
 				GUI.color = new Color(1f, 1f, 1f, 0.3f);
-				options.Label("Waiting for map to be loaded...");
+				options.Label("TD.WaitingForMap".Translate());
 				GUI.color = color;
 			}
 			else
