@@ -75,7 +75,7 @@ namespace TD_Enhancement_Pack.Overlays
 
 		public static Texture2D icon = ContentFinder<Texture2D>.Get("UI/Icons/ThingCategories/StoneBlocks", true);
 		public override Texture2D Icon() => icon;
-		public override bool IconEnabled() => Mod.settings.showOverlayBuildable;
+		public override bool IconEnabled() => true;
 		public override string IconTip() => "TD.ToggleBuildable".Translate();
 	}
 

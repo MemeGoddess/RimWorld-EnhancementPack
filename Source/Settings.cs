@@ -146,29 +146,12 @@ namespace TD_Enhancement_Pack
 
 			//Overlays
 			options.LabelHeader("TD.SettingsHeaderOverlays".Translate());
-			options.CheckboxLabeled("TD.SettingOverlayBuildable".Translate(), ref showOverlayBuildable, "TD.SettingOverlayBuildableDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoBuildable".Translate(), ref autoOverlayBuildable, "TD.SettingAutoBuildableDesc".Translate());
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayCoverage".Translate(), ref showOverlayCoverage, "TD.SettingOverlayCoverageDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoCoverage".Translate(), ref autoOverlayCoverage, "TD.SettingAutoCoverageDesc".Translate());
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayFertility".Translate(), ref showOverlayFertility);
-			bool before = cheatFertilityUnderGrid;
-			options.CheckboxLabeled("TD.SettingOverlayFertilityUnder".Translate(), ref cheatFertilityUnderGrid);
-			if (before != cheatFertilityUnderGrid)
-				BaseOverlay.SetDirty(typeof(FertilityOverlay));
 			options.CheckboxLabeled("TD.SettingAutoFertility".Translate(), ref autoOverlayFertility);
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayLighting".Translate(), ref showOverlayLighting, "TD.SettingOverlayLightingDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoLighting".Translate(), ref autoOverlayLighting);
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayWalkSpeed".Translate(), ref showOverlayWalkSpeed);
-			options.CheckboxLabeled("TD.SettingOverlayBeauty".Translate(), ref showOverlayBeauty);
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayPlantHarvest".Translate(), ref showOverlayPlantHarvest);
 			options.CheckboxLabeled("TD.SettingAutoPlantHarvest".Translate(), ref autoOverlayPlantHarvest);
 			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayPower".Translate(), ref showOverlayPower);
 			options.CheckboxLabeled("TD.SettingAutoSmoothable".Translate(), ref autoOverlaySmoothable);
 			options.CheckboxLabeled("TD.SettingAutoTreeGrowth".Translate(), ref autoOverlayTreeGrowth, "TD.SettingAutoTreeGrowthDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoWindBlocker".Translate(), ref autoOverlayWindBlocker);
@@ -185,7 +168,12 @@ namespace TD_Enhancement_Pack
 			options.Label("TD.SettingHeaderToggleButtonsDesc".Translate());
 
 			if (RemoveToggles.labels == null)
-				options.Label("Load map first");
+			{
+				var color = GUI.color;
+				GUI.color = new Color(1f, 1f, 1f, 0.3f);
+				options.Label("Waiting for map to be loaded...");
+				GUI.color = color;
+			}
 			else
 			{
 				var cols = 5;
@@ -225,7 +213,12 @@ namespace TD_Enhancement_Pack
 
 					GUI.DrawTexture(rect, tex);
 					if (Widgets.ButtonInvisible(rect))
+					{
 						toggleShowButtons[setting] = !checkedValue;
+						if(setting == "ShowFertilityOverlay")
+							BaseOverlay.SetDirty(typeof(FertilityOverlay));
+					}
+
 					GUI.color = oldColor;
 				}
 

@@ -45,7 +45,7 @@ namespace TD_Enhancement_Pack
 
 		private static Texture2D icon = ContentFinder<Texture2D>.Get("CornPlantIcon", true);
 		public override Texture2D Icon() => icon;
-		public override bool IconEnabled() => Mod.settings.showOverlayFertility;//from Settings
+		public override bool IconEnabled() => true;//from Settings
 		public override string IconTip() => "TD.ToggleFertility".Translate();
 	}
 
