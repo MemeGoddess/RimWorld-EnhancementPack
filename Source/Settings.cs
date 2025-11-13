@@ -118,10 +118,9 @@ namespace TD_Enhancement_Pack
 
 		public Vector2 scrollPosition;
 		public float scrollViewHeight;
-		public Dictionary<string, bool> toggleShowButtons = new Dictionary<string, bool>()
-		{
-			{"ShowBeauty", false}
-		};
+		public Dictionary<string, bool> toggleShowButtons = new Dictionary<string, bool>();
+		private List<string> toggleShowButtonsKeys = new List<string>();
+		private List<bool> toggleShowButtonsValues = new List<bool>();
 
 		public void DoWindowContents(Rect wrect)
 		{
@@ -423,19 +422,22 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref areasUnlimited, "areasUnlimited", true);
 			Scribe_Values.Look(ref matchGrowButton, "matchGrowButton", true);
 
-			Scribe_Values.Look(ref toggleShowLearningHelper, "showToggleLearning", true);
-			Scribe_Values.Look(ref toggleShowZones, "showToggleZone", true);
-			Scribe_Values.Look(ref toggleShowBeauty, "showToggleBeauty", true);
-			Scribe_Values.Look(ref toggleShowRoomStats, "showToggleRoomstats", true);
-			Scribe_Values.Look(ref toggleShowColonistBar, "showToggleColonists", true);
-			Scribe_Values.Look(ref toggleShowRoofOverlay, "showToggleRoof", true);
-			Scribe_Values.Look(ref toggleShowFertilityOverlay, "showToggleFertility", false);
-			Scribe_Values.Look(ref toggleShowTerrainAffordanceOverlay, "showToggleAffordance", false);
-			Scribe_Values.Look(ref toggleAutoHomeArea, "showToggleHomeArea", true);
-			Scribe_Values.Look(ref toggleAutoRebuild, "showToggleRebuild", true);
-			Scribe_Values.Look(ref toggleShowTemperatureOverlay, "showToggleTemperature", true);
-			Scribe_Values.Look(ref toggleCategorizedResourceReadout, "showToggleCategorized", true);
-			Scribe_Values.Look(ref toggleShowPollutionOverlay, "showTogglePollution", true);
+			if(toggleShowButtons == null)
+			{
+				Scribe_Values.Look(ref toggleShowLearningHelper, "showToggleLearning", true);
+				Scribe_Values.Look(ref toggleShowZones, "showToggleZone", true);
+				Scribe_Values.Look(ref toggleShowBeauty, "showToggleBeauty", true);
+				Scribe_Values.Look(ref toggleShowRoomStats, "showToggleRoomstats", true);
+				Scribe_Values.Look(ref toggleShowColonistBar, "showToggleColonists", true);
+				Scribe_Values.Look(ref toggleShowRoofOverlay, "showToggleRoof", true);
+				Scribe_Values.Look(ref toggleShowFertilityOverlay, "showToggleFertility", false);
+				Scribe_Values.Look(ref toggleShowTerrainAffordanceOverlay, "showToggleAffordance", false);
+				Scribe_Values.Look(ref toggleAutoHomeArea, "showToggleHomeArea", true);
+				Scribe_Values.Look(ref toggleAutoRebuild, "showToggleRebuild", true);
+				Scribe_Values.Look(ref toggleShowTemperatureOverlay, "showToggleTemperature", true);
+				Scribe_Values.Look(ref toggleCategorizedResourceReadout, "showToggleCategorized", true);
+				Scribe_Values.Look(ref toggleShowPollutionOverlay, "showTogglePollution", true);
+			}
 
 			Scribe_Values.Look(ref colorVariation, "colorVariation", false);
 			Scribe_Values.Look(ref colorGenerator, "colorGenerator", false);
@@ -444,6 +446,29 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref colorFixStuffColor, "colorFixStuffColor", false);
 			Scribe_Values.Look(ref colorFixDominant, "colorFixDominant", false);
 			Scribe_Values.Look(ref colorRedoWarned, "colorRedoWarned", false);
+
+			Scribe_Collections.Look(ref toggleShowButtons, "toggleShowButtons", LookMode.Value, LookMode.Value, ref toggleShowButtonsKeys, ref toggleShowButtonsValues);
+
+			if(toggleShowButtons == null)
+			{
+				Log.Message("Running settings Migration for hiding bottom-right buttons");
+				toggleShowButtons = new Dictionary<string, bool>()
+				{
+					{ "ShowLearningHelper", toggleShowLearningHelper },
+					{ "ShowZones", toggleShowZones },
+					{ "ShowBeauty", toggleShowBeauty },
+					{ "ShowRoomStats", toggleShowRoomStats },
+					{ "ShowColonistBar", toggleShowColonistBar },
+					{ "ShowRoofOverlay", toggleShowRoofOverlay },
+					{ "ShowFertilityOverlay", toggleShowFertilityOverlay },
+					{ "ShowTerrainAffordanceOverlay", toggleShowTerrainAffordanceOverlay },
+					{ "AutoHomeArea", toggleAutoHomeArea },
+					{ "AutoRebuild", toggleAutoRebuild },
+					{ "ToggleHeatOverlay", toggleShowTemperatureOverlay },
+					{ "ResourceReadoutCategorized", toggleCategorizedResourceReadout },
+					{ "ShowPollutionOverlay", toggleShowPollutionOverlay },
+				};
+			}
 		}
 	}
 }

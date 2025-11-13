@@ -8,6 +8,7 @@ using Verse;
 using RimWorld;
 using HarmonyLib;
 using UnityEngine;
+using System.Diagnostics;
 
 namespace TD_Enhancement_Pack
 {
@@ -17,6 +18,8 @@ namespace TD_Enhancement_Pack
 	{
 		private static bool Running = false;
 		private static bool CapturingLabels = false;
+
+		private static Dictionary<Texture2D, string> textureModIsolations = new Dictionary<Texture2D, string>();
 		public static List<(string, Texture2D)> labels;
 		[HarmonyPriority(Priority.First)]
 		public static bool Prefix()
@@ -40,7 +43,22 @@ namespace TD_Enhancement_Pack
 			SoundDef mouseoverSound = null,
 			string tutorTag = null)
 		{
-			return ShouldRender(tex);
+
+			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
+			{
+				var trace = new StackTrace();
+				var frame = trace.GetFrame(2);
+				var caller = frame?.GetMethod();
+				var callerAsm = caller?.DeclaringType?.Assembly;
+
+				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
+					? callerAsm.GetName().Name + "." + tex.name
+					: tex.name;
+
+				textureModIsolations[tex] = texLabel;
+			}
+
+			return ShouldRender(tex, texLabel);
 		}
 
 		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ButtonIcon))]
@@ -54,11 +72,24 @@ namespace TD_Enhancement_Pack
 			bool doMouseoverSound = true,
 			float overrideSize = -1f)
 		{
+			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
+			{
+				var trace = new StackTrace();
+				var frame = trace.GetFrame(2);
+				var caller = frame?.GetMethod();
+				var callerAsm = caller?.DeclaringType?.Assembly;
 
-			return ShouldRender(tex);
+				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
+					? callerAsm.GetName().Name + "." + tex.name
+					: tex.name;
+
+				textureModIsolations[tex] = texLabel;
+			}
+
+			return ShouldRender(tex, texLabel);
 		}
 
-		public static bool ShouldRender(Texture2D tex)
+		public static bool ShouldRender(Texture2D tex, string texLabel)
 		{
 			if (!Running)
 				return true;
@@ -70,11 +101,11 @@ namespace TD_Enhancement_Pack
 			}
 
 			if (CapturingLabels)
-				labels.Add((tex.name, tex));
+				labels.Add((texLabel, tex));
 
-			if (!Mod.settings.toggleShowButtons.TryGetValue(tex.name, out var val))
+			if (!Mod.settings.toggleShowButtons.TryGetValue(texLabel, out var val))
 			{
-				Mod.settings.toggleShowButtons[tex.name] = true;
+				Mod.settings.toggleShowButtons[texLabel] = true;
 				return true;
 			}
 
