@@ -167,7 +167,7 @@ namespace TD_Enhancement_Pack
 			options.LabelHeader("TD.SettingHeaderToggleButtons".Translate());
 			options.Label("TD.SettingHeaderToggleButtonsDesc".Translate());
 
-			if (RemoveToggles.labels == null)
+			if (RemoveUnusedToggles.labels == null)
 			{
 				var color = GUI.color;
 				GUI.color = new Color(1f, 1f, 1f, 0.3f);
@@ -180,7 +180,7 @@ namespace TD_Enhancement_Pack
 				var buttonSize = 24f;
 				var spacing = 4f;
 
-				var data = RemoveToggles.labels.ToList();
+				var data = RemoveUnusedToggles.labels.ToList();
 				var count = data.Count;
 
 				var rows = Mathf.CeilToInt(count / (float)cols);
