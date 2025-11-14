@@ -20,7 +20,7 @@ namespace TD_Enhancement_Pack
 		private static bool CapturingLabels = false;
 
 		private static Dictionary<Texture2D, string> textureModIsolations = new Dictionary<Texture2D, string>();
-		public static List<(string, Texture2D)> labels;
+		public static List<ToggleButton> labels;
 		[HarmonyPriority(Priority.First)]
 		public static bool Prefix()
 		{
@@ -58,7 +58,7 @@ namespace TD_Enhancement_Pack
 				textureModIsolations[tex] = texLabel;
 			}
 
-			return ShouldRender(tex, texLabel);
+			return ShouldRender(tex, texLabel, tooltip);
 		}
 
 		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ButtonIcon))]
@@ -86,22 +86,22 @@ namespace TD_Enhancement_Pack
 				textureModIsolations[tex] = texLabel;
 			}
 
-			return ShouldRender(tex, texLabel);
+			return ShouldRender(tex, texLabel, tooltip);
 		}
 
-		public static bool ShouldRender(Texture2D tex, string texLabel)
+		public static bool ShouldRender(Texture2D tex, string texLabel, string tooltip)
 		{
 			if (!Running)
 				return true;
 
 			if (labels == null)
 			{
-				labels = new List<(string, Texture2D)>();
+				labels = new();
 				CapturingLabels = true;
 			}
 
 			if (CapturingLabels)
-				labels.Add((texLabel, tex));
+				labels.Add(new ToggleButton(texLabel, tex, tooltip));
 
 			if (!Mod.settings.toggleShowButtons.TryGetValue(texLabel, out var val))
 			{
@@ -113,7 +113,14 @@ namespace TD_Enhancement_Pack
 		}
 	}
 
-  //[HarmonyPatch(typeof(PlaySettings), "DoMapControls")]
+	public record ToggleButton(string setting, Texture2D texture, string tooltip)
+	{
+		public string setting { get; } = setting;
+		public Texture2D texture { get; } = texture;
+		public string tooltip { get; } = tooltip;
+	}
+
+	//[HarmonyPatch(typeof(PlaySettings), "DoMapControls")]
 	class RemoveUnusedToggles
 	{
 		//public void DoPlaySettingsGlobalControls(WidgetRow row, bool worldView)

@@ -201,7 +201,7 @@ namespace TD_Enhancement_Pack
 					var x = col * (buttonSize + spacing);
 					var y = row * (buttonSize + spacing);
 
-					var (setting, tex) = data[i];
+					var (setting, tex, tooltip) = data[i];
 					var checkedValue = toggleShowButtons[setting];
 
 					var rect = new Rect(x, y, buttonSize, buttonSize);
@@ -212,6 +212,7 @@ namespace TD_Enhancement_Pack
 						GUI.color = new Color(1f, 1f, 1f, 0.3f);
 
 					GUI.DrawTexture(rect, tex);
+					TooltipHandler.TipRegion(rect, (TipSignal) tooltip);
 					if (Widgets.ButtonInvisible(rect))
 					{
 						toggleShowButtons[setting] = !checkedValue;
