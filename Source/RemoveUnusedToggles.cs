@@ -8,87 +8,116 @@ using Verse;
 using RimWorld;
 using HarmonyLib;
 using UnityEngine;
+using System.Diagnostics;
 
 namespace TD_Enhancement_Pack
 {
-	[HarmonyPatch(typeof(PlaySettings), "DoMapControls")]
+	[HarmonyPatch(typeof(PlaySettings), "DoPlaySettingsGlobalControls")]
+
 	class RemoveUnusedToggles
 	{
-		//public void DoPlaySettingsGlobalControls(WidgetRow row, bool worldView)
-		public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+		private static bool Running = false;
+		private static bool CapturingLabels = false;
+
+		private static Dictionary<Texture2D, string> textureModIsolations = new Dictionary<Texture2D, string>();
+		public static List<ToggleButton> labels;
+
+		[HarmonyPriority(Priority.First)]
+		public static bool Prefix()
 		{
-			MethodInfo ToggleableIconInfo = AccessTools.Method(typeof(WidgetRow), nameof(WidgetRow.ToggleableIcon));
-			MethodInfo ToggleableIconReplacement = AccessTools.Method(typeof(RemoveUnusedToggles), nameof(ToggleableIconFiltered));
+			Running = true;
+			return true;
+		}
 
-			FieldInfo settingsInfo = AccessTools.Field(typeof(Mod), nameof(Mod.settings));
+		[HarmonyPriority(Priority.Last)]
+		public static void Postfix()
+		{
+			CapturingLabels = false;
+			Running = false;
+		}
 
-			// PlaySettings draws icons via WidgetRow.ToggleableIcon(ref bool toggleable, Texture2D tex ...)
-			// Each bool has its own icon, so detect PlaySettings by their icon:
-			string[] fieldNames = [
-				nameof(Verse.TexButton.ShowLearningHelper),
-				nameof(Verse.TexButton.ShowZones),
-				nameof(Verse.TexButton.ShowBeauty),
-				nameof(Verse.TexButton.ShowRoomStats),
-				nameof(Verse.TexButton.ShowColonistBar),
-				nameof(Verse.TexButton.ShowRoofOverlay),
-				nameof(Verse.TexButton.ShowFertilityOverlay),
-				nameof(Verse.TexButton.ShowTerrainAffordanceOverlay),
-				nameof(Verse.TexButton.AutoHomeArea),
-				nameof(Verse.TexButton.AutoRebuild),
-				nameof(Verse.TexButton.ShowTemperatureOverlay),
-				nameof(Verse.TexButton.CategorizedResourceReadout),
-				nameof(Verse.TexButton.ShowPollutionOverlay)
-				];
-			int fieldIndex = 0;
+		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ToggleableIcon))]
+		[HarmonyPrefix]
+		public static bool ToggleableIconRendering(ref bool toggleable,
+			Texture2D tex,
+			string tooltip,
+			SoundDef mouseoverSound = null,
+			string tutorTag = null)
+		{
 
-			// Find the ILCode that loads this texture:
-			FieldInfo showToggleButtonTexInfo = AccessTools.Field(typeof(Verse.TexButton), fieldNames[fieldIndex]);
-			// (These are ordered by when them method uses them, so only need to check one at a time)
-
-			bool modifyThisCall = false;
-
-			foreach (CodeInstruction inst in instructions)
+			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
 			{
-				// When we load the next TexButton...
-				if (showToggleButtonTexInfo != null && inst.LoadsField(showToggleButtonTexInfo))
-				{
-					modifyThisCall = true;
+				var trace = new StackTrace();
+				var frame = trace.GetFrame(2);
+				var caller = frame?.GetMethod();
+				var callerAsm = caller?.DeclaringType?.Assembly;
 
+				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
+					? callerAsm.GetName().Name + "." + tex.name
+					: tex.name;
 
-					// Get the TD Toggle Setting bool for this PlaySetting: named toggle<TexName>
-					FieldInfo settingToToggleThat = AccessTools.Field(typeof(Settings), "toggle" + fieldNames[fieldIndex]);
-
-					// (And prep for next field:)
-					fieldIndex++;
-					showToggleButtonTexInfo = fieldIndex < fieldNames.Length ? AccessTools.Field(typeof(Verse.TexButton), fieldNames[fieldIndex]) : null;
-
-					// Simply load the TD toggle setting bool before the texture
-					yield return new CodeInstruction(OpCodes.Ldsfld, settingsInfo); //Mod.settings
-					yield return new CodeInstruction(OpCodes.Ldfld, settingToToggleThat);//Mod.settings.toggleShow~Whatever~
-
-					yield return inst;  //TexButton.Show~Whatever~
-
-					// And then...
-				}
-				else if (inst.Calls(ToggleableIconInfo) && modifyThisCall)
-				{
-					// Modify the WidgetRow.ToggleableIcon to our override with inserted bool settingToToggleThat
-					yield return new CodeInstruction(OpCodes.Call, ToggleableIconReplacement);
-
-
-					// and make sure we don't modify ToggleableIcons calls that didn't just get this treatment
-					modifyThisCall = false;
-				}
-				else
-					yield return inst;
+				textureModIsolations[tex] = texLabel;
 			}
+
+			return ShouldRender(tex, texLabel, tooltip);
 		}
 
-		//public void ToggleableIcon(ref bool toggleable, Texture2D tex, string tooltip, SoundDef mouseoverSound = null, string tutorTag = null)
-		public static void ToggleableIconFiltered(WidgetRow row, ref bool toggleable, bool settingToToggleThat, Texture2D tex, string tooltip, SoundDef mouseoverSound = null, string tutorTag = null)
+		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ButtonIcon))]
+		[HarmonyPrefix]
+		public static bool ButtonIconRendering(
+			Texture2D tex,
+			string tooltip = null,
+			Color? mouseoverColor = null,
+			Color? backgroundColor = null,
+			Color? mouseoverBackgroundColor = null,
+			bool doMouseoverSound = true,
+			float overrideSize = -1f)
 		{
-			if(settingToToggleThat)
-				row.ToggleableIcon(ref toggleable, tex, tooltip, mouseoverSound, tutorTag);
+			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
+			{
+				var trace = new StackTrace();
+				var frame = trace.GetFrame(2);
+				var caller = frame?.GetMethod();
+				var callerAsm = caller?.DeclaringType?.Assembly;
+
+				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
+					? callerAsm.GetName().Name + "." + tex.name
+					: tex.name;
+
+				textureModIsolations[tex] = texLabel;
+			}
+
+			return ShouldRender(tex, texLabel, tooltip);
 		}
+
+		public static bool ShouldRender(Texture2D tex, string texLabel, string tooltip)
+		{
+			if (!Running)
+				return true;
+
+			if (labels == null)
+			{
+				labels = new();
+				CapturingLabels = true;
+			}
+
+			if (CapturingLabels)
+				labels.Add(new ToggleButton(texLabel, tex, tooltip));
+
+			if (!Mod.settings.toggleShowButtons.TryGetValue(texLabel, out var val))
+			{
+				Mod.settings.toggleShowButtons[texLabel] = true;
+				return true;
+			}
+
+			return val;
+		}
+	}
+
+	public record ToggleButton(string setting, Texture2D texture, string tooltip)
+	{
+		public string setting { get; } = setting;
+		public Texture2D texture { get; } = texture;
+		public string tooltip { get; } = tooltip;
 	}
 }

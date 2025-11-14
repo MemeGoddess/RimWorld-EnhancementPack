@@ -54,7 +54,7 @@ namespace TD_Enhancement_Pack
 
 		private static Texture2D icon = ContentFinder<Texture2D>.Get("LampSun", true);
 		public override Texture2D Icon() => icon;
-		public override bool IconEnabled() => Mod.settings.showOverlayLighting;//from Settings
+		public override bool IconEnabled() => true;//from Settings
 		public override string IconTip() => "TD.ToggleLighting".Translate();
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayLighting;

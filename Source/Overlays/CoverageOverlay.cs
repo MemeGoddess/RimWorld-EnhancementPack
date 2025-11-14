@@ -87,7 +87,7 @@ namespace TD_Enhancement_Pack.Overlays
 		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_Place) ];
 		public static Texture2D TexIcon = ContentFinder<Texture2D>.Get("UI/Buttons/Dev/Add", true);
 		public override Texture2D Icon() => TexIcon;
-		public override bool IconEnabled() => Mod.settings.showOverlayCoverage;
+		public override bool IconEnabled() => true;
 		public override string IconTip() => "TD.ToggleCoverage".Translate();
 	}
 

@@ -187,6 +187,6 @@
 	<TD.CurrentTimeToRot>Current time to rot</TD.CurrentTimeToRot>
 	<TD.ShelfLife>Shelf life</TD.ShelfLife>
 	
-
+	<TD.WaitingForMap>Waiting for map to load...</TD.WaitingForMap>
 
 </LanguageData>

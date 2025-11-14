@@ -37,7 +37,7 @@ namespace TD_Enhancement_Pack
 
 		public static Texture2D icon = ContentFinder<Texture2D>.Get("UI/Designators/Harvest", true);
 		public override Texture2D Icon() => icon;
-		public override bool IconEnabled() => Mod.settings.showOverlayPlantHarvest;
+		public override bool IconEnabled() => true;
 		public override string IconTip() => "TD.TogglePlantHarveset".Translate();
 	}
 

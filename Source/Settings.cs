@@ -4,6 +4,7 @@ using UnityEngine;
 using Verse;
 using RimWorld;
 using TD.Utilities;
+using System.Linq;
 
 namespace TD_Enhancement_Pack
 {
@@ -117,6 +118,9 @@ namespace TD_Enhancement_Pack
 
 		public Vector2 scrollPosition;
 		public float scrollViewHeight;
+		public Dictionary<string, bool> toggleShowButtons = new Dictionary<string, bool>();
+		private List<string> toggleShowButtonsKeys = new List<string>();
+		private List<bool> toggleShowButtonsValues = new List<bool>();
 
 		public void DoWindowContents(Rect wrect)
 		{
@@ -142,29 +146,12 @@ namespace TD_Enhancement_Pack
 
 			//Overlays
 			options.LabelHeader("TD.SettingsHeaderOverlays".Translate());
-			options.CheckboxLabeled("TD.SettingOverlayBuildable".Translate(), ref showOverlayBuildable, "TD.SettingOverlayBuildableDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoBuildable".Translate(), ref autoOverlayBuildable, "TD.SettingAutoBuildableDesc".Translate());
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayCoverage".Translate(), ref showOverlayCoverage, "TD.SettingOverlayCoverageDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoCoverage".Translate(), ref autoOverlayCoverage, "TD.SettingAutoCoverageDesc".Translate());
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayFertility".Translate(), ref showOverlayFertility);
-			bool before = cheatFertilityUnderGrid;
-			options.CheckboxLabeled("TD.SettingOverlayFertilityUnder".Translate(), ref cheatFertilityUnderGrid);
-			if (before != cheatFertilityUnderGrid)
-				BaseOverlay.SetDirty(typeof(FertilityOverlay));
 			options.CheckboxLabeled("TD.SettingAutoFertility".Translate(), ref autoOverlayFertility);
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayLighting".Translate(), ref showOverlayLighting, "TD.SettingOverlayLightingDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoLighting".Translate(), ref autoOverlayLighting);
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayWalkSpeed".Translate(), ref showOverlayWalkSpeed);
-			options.CheckboxLabeled("TD.SettingOverlayBeauty".Translate(), ref showOverlayBeauty);
-			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayPlantHarvest".Translate(), ref showOverlayPlantHarvest);
 			options.CheckboxLabeled("TD.SettingAutoPlantHarvest".Translate(), ref autoOverlayPlantHarvest);
 			options.Gap();
-			options.CheckboxLabeled("TD.SettingOverlayPower".Translate(), ref showOverlayPower);
 			options.CheckboxLabeled("TD.SettingAutoSmoothable".Translate(), ref autoOverlaySmoothable);
 			options.CheckboxLabeled("TD.SettingAutoTreeGrowth".Translate(), ref autoOverlayTreeGrowth, "TD.SettingAutoTreeGrowthDesc".Translate());
 			options.CheckboxLabeled("TD.SettingAutoWindBlocker".Translate(), ref autoOverlayWindBlocker);
@@ -179,20 +166,70 @@ namespace TD_Enhancement_Pack
 			//Hide bottom-right Toggleable buttons
 			options.LabelHeader("TD.SettingHeaderToggleButtons".Translate());
 			options.Label("TD.SettingHeaderToggleButtonsDesc".Translate());
-			options.CheckboxLabeled("TD.Show".Translate("ShowLearningHelperWhenEmptyToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowLearningHelper);
-			options.CheckboxLabeled("TD.Show".Translate("ZoneVisibilityToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowZones);
-			options.CheckboxLabeled("TD.Show".Translate("ShowBeautyToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowBeauty);
-			options.CheckboxLabeled("TD.Show".Translate("ShowRoomStatsToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowRoomStats);
-			options.CheckboxLabeled("TD.Show".Translate("ShowColonistBarToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowColonistBar);
-			options.CheckboxLabeled("TD.Show".Translate("ShowRoofOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowRoofOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("ShowFertilityOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowFertilityOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("ShowTerrainAffordanceOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowTerrainAffordanceOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("AutoHomeAreaToggleButton".Translate().RawText.Split('\n')[0]), ref toggleAutoHomeArea);
-			options.CheckboxLabeled("TD.Show".Translate("AutoRebuildButton".Translate().RawText.Split('\n')[0]), ref toggleAutoRebuild);
-			options.CheckboxLabeled("TD.Show".Translate("ShowTemperatureOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowTemperatureOverlay);
-			options.CheckboxLabeled("TD.Show".Translate("CategorizedResourceReadoutToggleButton".Translate().RawText.Split('\n')[0]), ref toggleCategorizedResourceReadout);
-			if (ModsConfig.BiotechActive)	// Mainly so that the translation key exists
-				options.CheckboxLabeled("TD.Show".Translate("ShowPollutionOverlayToggleButton".Translate().RawText.Split('\n')[0]), ref toggleShowPollutionOverlay);
+
+			if (RemoveUnusedToggles.labels == null)
+			{
+				var color = GUI.color;
+				GUI.color = new Color(1f, 1f, 1f, 0.3f);
+				options.Label("TD.WaitingForMap".Translate());
+				GUI.color = color;
+			}
+			else
+			{
+				var cols = 5;
+				var buttonSize = 24f;
+				var spacing = 4f;
+
+				var data = RemoveUnusedToggles.labels.ToList();
+				var count = data.Count;
+
+				var rows = Mathf.CeilToInt(count / (float)cols);
+
+				var totalHeight = rows * buttonSize + (rows - 1) * spacing;
+				var gridRect = options.GetRect(totalHeight);
+
+				GUI.BeginGroup(gridRect);
+
+				for (var i = 0; i < count; i++)
+				{
+					var naturalRow = i / cols;
+					var naturalCol = i % cols;
+
+					var row = (rows - 1) - naturalRow;
+					var col = (cols - 1) - naturalCol;
+
+					var x = col * (buttonSize + spacing);
+					var y = row * (buttonSize + spacing);
+
+					var (setting, tex, tooltip) = data[i];
+					var checkedValue = toggleShowButtons[setting];
+
+					var rect = new Rect(x, y, buttonSize, buttonSize);
+
+					var oldColor = GUI.color;
+
+					if (!toggleShowButtons[setting]) 
+						GUI.color = new Color(1f, 1f, 1f, 0.3f);
+
+					GUI.DrawTexture(rect, tex);
+					TooltipHandler.TipRegion(rect, (TipSignal) tooltip);
+					if (Widgets.ButtonInvisible(rect))
+					{
+						toggleShowButtons[setting] = !checkedValue;
+						if(setting == "ShowFertilityOverlay")
+							BaseOverlay.SetDirty(typeof(FertilityOverlay));
+					}
+					GUI.color = oldColor;
+
+					Widgets.DrawHighlightIfMouseover(rect);
+
+				}
+
+				GUI.EndGroup();
+				options.Gap();
+
+			}
+
 			options.GapLine();
 
 
@@ -382,19 +419,22 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref areasUnlimited, "areasUnlimited", true);
 			Scribe_Values.Look(ref matchGrowButton, "matchGrowButton", true);
 
-			Scribe_Values.Look(ref toggleShowLearningHelper, "showToggleLearning", true);
-			Scribe_Values.Look(ref toggleShowZones, "showToggleZone", true);
-			Scribe_Values.Look(ref toggleShowBeauty, "showToggleBeauty", true);
-			Scribe_Values.Look(ref toggleShowRoomStats, "showToggleRoomstats", true);
-			Scribe_Values.Look(ref toggleShowColonistBar, "showToggleColonists", true);
-			Scribe_Values.Look(ref toggleShowRoofOverlay, "showToggleRoof", true);
-			Scribe_Values.Look(ref toggleShowFertilityOverlay, "showToggleFertility", false);
-			Scribe_Values.Look(ref toggleShowTerrainAffordanceOverlay, "showToggleAffordance", false);
-			Scribe_Values.Look(ref toggleAutoHomeArea, "showToggleHomeArea", true);
-			Scribe_Values.Look(ref toggleAutoRebuild, "showToggleRebuild", true);
-			Scribe_Values.Look(ref toggleShowTemperatureOverlay, "showToggleTemperature", true);
-			Scribe_Values.Look(ref toggleCategorizedResourceReadout, "showToggleCategorized", true);
-			Scribe_Values.Look(ref toggleShowPollutionOverlay, "showTogglePollution", true);
+			if(toggleShowButtons == null)
+			{
+				Scribe_Values.Look(ref toggleShowLearningHelper, "showToggleLearning", true);
+				Scribe_Values.Look(ref toggleShowZones, "showToggleZone", true);
+				Scribe_Values.Look(ref toggleShowBeauty, "showToggleBeauty", true);
+				Scribe_Values.Look(ref toggleShowRoomStats, "showToggleRoomstats", true);
+				Scribe_Values.Look(ref toggleShowColonistBar, "showToggleColonists", true);
+				Scribe_Values.Look(ref toggleShowRoofOverlay, "showToggleRoof", true);
+				Scribe_Values.Look(ref toggleShowFertilityOverlay, "showToggleFertility", false);
+				Scribe_Values.Look(ref toggleShowTerrainAffordanceOverlay, "showToggleAffordance", false);
+				Scribe_Values.Look(ref toggleAutoHomeArea, "showToggleHomeArea", true);
+				Scribe_Values.Look(ref toggleAutoRebuild, "showToggleRebuild", true);
+				Scribe_Values.Look(ref toggleShowTemperatureOverlay, "showToggleTemperature", true);
+				Scribe_Values.Look(ref toggleCategorizedResourceReadout, "showToggleCategorized", true);
+				Scribe_Values.Look(ref toggleShowPollutionOverlay, "showTogglePollution", true);
+			}
 
 			Scribe_Values.Look(ref colorVariation, "colorVariation", false);
 			Scribe_Values.Look(ref colorGenerator, "colorGenerator", false);
@@ -403,6 +443,29 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref colorFixStuffColor, "colorFixStuffColor", false);
 			Scribe_Values.Look(ref colorFixDominant, "colorFixDominant", false);
 			Scribe_Values.Look(ref colorRedoWarned, "colorRedoWarned", false);
+
+			Scribe_Collections.Look(ref toggleShowButtons, "toggleShowButtons", LookMode.Value, LookMode.Value, ref toggleShowButtonsKeys, ref toggleShowButtonsValues);
+
+			if(toggleShowButtons == null)
+			{
+				Log.Message("Running settings Migration for hiding bottom-right buttons");
+				toggleShowButtons = new Dictionary<string, bool>()
+				{
+					{ "ShowLearningHelper", toggleShowLearningHelper },
+					{ "ShowZones", toggleShowZones },
+					{ "ShowBeauty", toggleShowBeauty },
+					{ "ShowRoomStats", toggleShowRoomStats },
+					{ "ShowColonistBar", toggleShowColonistBar },
+					{ "ShowRoofOverlay", toggleShowRoofOverlay },
+					{ "ShowFertilityOverlay", toggleShowFertilityOverlay },
+					{ "ShowTerrainAffordanceOverlay", toggleShowTerrainAffordanceOverlay },
+					{ "AutoHomeArea", toggleAutoHomeArea },
+					{ "AutoRebuild", toggleAutoRebuild },
+					{ "ToggleHeatOverlay", toggleShowTemperatureOverlay },
+					{ "ResourceReadoutCategorized", toggleCategorizedResourceReadout },
+					{ "ShowPollutionOverlay", toggleShowPollutionOverlay },
+				};
+			}
 		}
 	}
 }
