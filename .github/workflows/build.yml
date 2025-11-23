@@ -1,7 +1,7 @@
 name: Build and Deploy to Steam Workshop
 
 env:
-  workshopId: '3526439840'
+  workshopId: '3525414162'
   ProjectFiles: 'Source/TD_Enhancement_Pack.csproj' # e.g. 'Source/Mod1.csproj, Source/Mod2.csproj'
 
 on:
