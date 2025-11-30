@@ -114,12 +114,12 @@ namespace TD_Enhancement_Pack.Overlays
 		public virtual Color GetCellExtraColor(int index) => GetCoverageEdgeColor() * 0.5f;
 		public virtual Color GetCoverageEdgeColor() => coveredColor;
 
-		public abstract ThingDef PlacingDef();
-		public virtual ThingDef CoverageDef() => PlacingDef();
-		public virtual float Radius() => CoverageDef().specialDisplayRadius;
+		public abstract ThingDef[] PlacingDef();
+		public virtual ThingDef[] CoverageDef() => PlacingDef();
+		public virtual float Radius() => CoverageDef().FirstOrDefault()?.specialDisplayRadius ?? 0f;
 		public bool MakeActive(ThingDef def)
 		{
-			bool nowActive = def == PlacingDef();
+			bool nowActive = PlacingDef().Any(placing => def == placing);
 			if (nowActive != active)
 			{
 				active = nowActive;
@@ -130,13 +130,14 @@ namespace TD_Enhancement_Pack.Overlays
 
 		public void Init()
 		{
-			HashSet<IntVec3> centers = new HashSet<IntVec3>(Find.CurrentMap.listerThings.ThingsOfDef(CoverageDef()).Select(t => t.Position));
+			
+			HashSet<IntVec3> centers = new HashSet<IntVec3>(CoverageDef().SelectMany(def => Find.CurrentMap.listerThings.ThingsOfDef(def)).Select(t => t.Position));
 
 			centers.AddRange(Find.CurrentMap.listerThings.ThingsInGroup(ThingRequestGroup.Blueprint)
-				.Where(bp => GenConstruct.BuiltDefOf(bp.def) == CoverageDef()).Select(t => t.Position).ToList());
+				.Where(bp => CoverageDef().Any(coverage => coverage == GenConstruct.BuiltDefOf(bp.def) as ThingDef)).Select(t => t.Position).ToList());
 
 			centers.AddRange(Find.CurrentMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingFrame)
-				.Where(frame => GenConstruct.BuiltDefOf(frame.def) == CoverageDef()).Select(t => t.Position).ToList());
+				.Where(frame => CoverageDef().Any(coverage => coverage == GenConstruct.BuiltDefOf(frame.def) as ThingDef)).Select(t => t.Position).ToList());
 
 			covered.Clear();
 
@@ -170,20 +171,29 @@ namespace TD_Enhancement_Pack.Overlays
 	}
 	public class TradeBeaconType : CoverageType
 	{
-		public override ThingDef PlacingDef() => ThingDefOf.OrbitalTradeBeacon;
-		public override float Radius() => 7.9f;//Building_OrbitalTradeBeacon.TradeRadius;
+		public override ThingDef[] PlacingDef() => things;
+		public override float Radius() => 7.9f;
+
+		private ThingDef[] things;
+
+		public TradeBeaconType()
+		{
+			things = DefDatabase<ThingDef>.AllDefs
+				.Where(x => x.PlaceWorkers?.Any(y => y is PlaceWorker_ShowTradeBeaconRadius) ?? false)
+				.ToArray();
+		}
 	}
 	public class SunLampType : CoverageType
 	{
-		public override ThingDef PlacingDef() => MoreThingDefOf.SunLamp;
+		public override ThingDef[] PlacingDef() => [MoreThingDefOf.SunLamp];
 	}
 	public class FirefoamPopperType : CoverageType
 	{
-		public override ThingDef PlacingDef() => ThingDefOf.FirefoamPopper;
+		public override ThingDef[] PlacingDef() => [ThingDefOf.FirefoamPopper];
 	}
 	public class PsychicEmanatorType : CoverageType
 	{
-		public override ThingDef PlacingDef() => ThingDefOf.PsychicEmanator;
+		public override ThingDef[] PlacingDef() => [ThingDefOf.PsychicEmanator];
 	}
 
 	[DefOf]
@@ -197,34 +207,42 @@ namespace TD_Enhancement_Pack.Overlays
 	}
 	public abstract class TrapType : CoverageType
 	{
-		public override ThingDef CoverageDef() => TrapThingDefOf.TrapIED_HighExplosive;
+		public override ThingDef[] CoverageDef() => [TrapThingDefOf.TrapIED_HighExplosive];
 		public override Color GetCoverageEdgeColor() => Color.red;
 	}
 	//Okay at this point I should make a class to handle all these at once ohwell
 	public class IEDTrapType : TrapType
 	{
-		public override ThingDef PlacingDef() => TrapThingDefOf.TrapIED_HighExplosive;
+		public override ThingDef[] PlacingDef() => [TrapThingDefOf.TrapIED_HighExplosive];
 	}
 	public class FireTrapType : TrapType
 	{
-		public override ThingDef PlacingDef() => TrapThingDefOf.TrapIED_Incendiary;
+		public override ThingDef[] PlacingDef() => [TrapThingDefOf.TrapIED_Incendiary];
 	}
 	public class EMPTrapType : TrapType
 	{
-		public override ThingDef PlacingDef() => TrapThingDefOf.TrapIED_EMP;
+		public override ThingDef[] PlacingDef() => [TrapThingDefOf.TrapIED_EMP];
 	}
 	public class FirefoamTrapType : TrapType
 	{
-		public override ThingDef PlacingDef() => TrapThingDefOf.TrapIED_Firefoam;
+		public override ThingDef[] PlacingDef() => [TrapThingDefOf.TrapIED_Firefoam];
 	}
 	public class AntigrainTrapType : TrapType
 	{
-		public override ThingDef PlacingDef() => TrapThingDefOf.TrapIED_AntigrainWarhead;
+		public override ThingDef[] PlacingDef() => [TrapThingDefOf.TrapIED_AntigrainWarhead];
 	}
 
 	//Moisture pumps show overlay AND coverage
 	public class MoisturePumpType : CoverageType
 	{
+		private ThingDef[] things;
+
+		public MoisturePumpType()
+		{
+			this.things = DefDatabase<ThingDef>.AllDefs
+				.Where(x => x.comps.Any(x => x is CompProperties_TerrainPumpDry))
+				.ToArray();
+		}
 		public override bool ShowCell(int index) =>
 			Find.CurrentMap.terrainGrid.TerrainAt(index)?.driesTo != null ||
 			Find.CurrentMap.terrainGrid.UnderTerrainAt(index)?.driesTo != null;
@@ -233,7 +251,7 @@ namespace TD_Enhancement_Pack.Overlays
 			covered.Contains(Find.CurrentMap.cellIndices.IndexToCell(index))
 				? coveredColor : Color.green;
 
-		public override ThingDef PlacingDef() => MoreThingDefOf.MoisturePump;
+		public override ThingDef[] PlacingDef() => things;
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Register")]
@@ -241,10 +259,13 @@ namespace TD_Enhancement_Pack.Overlays
 	{
 		public static void Postfix(Thing t, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				if (CoverageOverlay.activeType != null &&
-					GenConstruct.BuiltDefOf(t.def) == CoverageOverlay.activeType.CoverageDef())
-					BaseOverlay.SetDirty(typeof(CoverageOverlay));
+			if (___map != Find.CurrentMap) return;
+
+
+			if (CoverageOverlay.activeType != null &&
+			    CoverageOverlay.activeType.CoverageDef()
+				    .Any(coverage => coverage == GenConstruct.BuiltDefOf(t.def) as ThingDef))
+				BaseOverlay.SetDirty(typeof(CoverageOverlay));
 		}
 	}
 
