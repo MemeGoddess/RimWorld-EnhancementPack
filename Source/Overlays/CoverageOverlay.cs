@@ -263,13 +263,25 @@ namespace TD_Enhancement_Pack.Overlays
 
 	public class IrrigationSprinkler : CoverageType
 	{
-		public override ThingDef[] PlacingDef() => [DubsBadHygieneDefOf.IrrigationSprinkler];
+		private ThingDef[] things;
+		public IrrigationSprinkler()
+		{
+			things = [DubsBadHygieneDefOf.IrrigationSprinkler];
+			things = things.Where(x => x != null).ToArray();
+		}
+		public override ThingDef[] PlacingDef() => things;
 		public override float Radius() => 6.9f;
 	}
 
 	public class FireSprinkler : CoverageType
 	{
-		public override ThingDef[] PlacingDef() => [DubsBadHygieneDefOf.FireSprinkler];
+		private ThingDef[] things;
+		public FireSprinkler()
+		{
+			things = [DubsBadHygieneDefOf.FireSprinkler];
+			things = things.Where(x => x != null).ToArray();
+		}
+		public override ThingDef[] PlacingDef() => things;
 		public override float Radius() => 6.9f;
 	}
 
