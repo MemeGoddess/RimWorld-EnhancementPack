@@ -254,6 +254,27 @@ namespace TD_Enhancement_Pack.Overlays
 		public override ThingDef[] PlacingDef() => things;
 	}
 
+	[DefOf]
+	public static class DubsBadHygieneDefOf
+	{
+		[MayRequire("dubwise.dubsbadhygiene")] public static ThingDef IrrigationSprinkler;
+		[MayRequire("dubwise.dubsbadhygiene")] public static ThingDef FireSprinkler;
+	}
+
+	public class IrrigationSprinkler : CoverageType
+	{
+		public override ThingDef[] PlacingDef() => [DubsBadHygieneDefOf.IrrigationSprinkler];
+		public override float Radius() => 6.9f;
+	}
+
+	public class FireSprinkler : CoverageType
+	{
+		public override ThingDef[] PlacingDef() => [DubsBadHygieneDefOf.FireSprinkler];
+		public override float Radius() => 6.9f;
+	}
+
+
+
 	[HarmonyPatch(typeof(ThingGrid), "Register")]
 	public static class BuildingDirtierRegister
 	{
