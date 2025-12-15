@@ -285,7 +285,17 @@ namespace TD_Enhancement_Pack.Overlays
 		public override float Radius() => 6.9f;
 	}
 
+	[DefOf]
+	public static class BiotechDefOf
+	{
+		[MayRequireBiotech] public static ThingDef MechBooster;
+	}
 
+	public class MechBooster : CoverageType
+	{
+		public override ThingDef[] PlacingDef() => ModsConfig.BiotechActive ? [BiotechDefOf.MechBooster] : [];
+		public override float Radius() => 9.9f;
+	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Register")]
 	public static class BuildingDirtierRegister
