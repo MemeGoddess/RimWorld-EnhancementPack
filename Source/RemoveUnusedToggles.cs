@@ -16,10 +16,10 @@ namespace TD_Enhancement_Pack
 
 	class RemoveUnusedToggles
 	{
-		private static bool Running = false;
+		public static bool Running = false;
 		private static bool CapturingLabels = false;
 
-		private static Dictionary<Texture2D, string> textureModIsolations = new Dictionary<Texture2D, string>();
+		public static Dictionary<Texture2D, string> textureModIsolations = new Dictionary<Texture2D, string>();
 		public static List<ToggleButton> labels;
 
 		[HarmonyPriority(Priority.First)]
@@ -111,6 +111,49 @@ namespace TD_Enhancement_Pack
 			}
 
 			return val;
+		}
+	}
+
+	[HarmonyPatch]
+	class RemoveUnusedToggles_Compositable_Loadouts
+	{
+		static bool Prepare()
+		{
+			return AccessTools.Method("Inventory.GUIUtility:ColoredButtonIcon") != null;
+		}
+
+		[HarmonyTargetMethods]
+		public static IEnumerable<MethodBase> TargetMethods()
+		{
+			var compositableLoadouts = AccessTools.Method("Inventory.GUIUtility:ColoredButtonIcon");
+			if (compositableLoadouts != null)
+				yield return compositableLoadouts;
+		}
+
+		public static bool Prefix(
+			WidgetRow row,
+			Texture2D tex,
+			Func<string> tooltip,
+			Color color)
+		{
+			if (!RemoveUnusedToggles.Running)
+				return true;
+
+			if (!RemoveUnusedToggles.textureModIsolations.TryGetValue(tex, out var texLabel))
+			{
+				var trace = new StackTrace();
+				var frame = trace.GetFrame(2);
+				var caller = frame?.GetMethod();
+				var callerAsm = caller?.DeclaringType?.Assembly;
+
+				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
+					? callerAsm.GetName().Name + "." + tex.name
+					: tex.name;
+
+				RemoveUnusedToggles.textureModIsolations[tex] = texLabel;
+			}
+
+			return RemoveUnusedToggles.ShouldRender(tex, texLabel, tooltip.Invoke());
 		}
 	}
 
