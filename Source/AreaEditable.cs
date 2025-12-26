@@ -25,6 +25,10 @@ namespace TD_Enhancement_Pack
 		public static readonly Texture2D PersonIcon = ContentFinder<Texture2D>.Get("PersonIcon");
 		public static readonly Texture2D MechIcon = ContentFinder<Texture2D>.Get("MechIcon");
 		public static readonly Texture2D AnimalIcon = ContentFinder<Texture2D>.Get("AnimalIcon");
+
+		public static readonly Texture2D ShowMap = ContentFinder<Texture2D>.Get("UI/Commands/ShowMap");
+		public static readonly Texture2D ViewPlanet = ContentFinder<Texture2D>.Get("ViewPlanet");
+
 	}
 
 	[HarmonyPatch(typeof(Dialog_ManageAreas), "InitialSize", MethodType.Getter)]

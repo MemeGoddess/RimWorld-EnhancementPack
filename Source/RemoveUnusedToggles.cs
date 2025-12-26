@@ -17,14 +17,22 @@ namespace TD_Enhancement_Pack
 	class RemoveUnusedToggles
 	{
 		public static bool Running = false;
-		private static bool CapturingLabels = false;
+		public static CaptureType CaptureType = CaptureType.None;
 
 		public static Dictionary<Texture2D, string> textureModIsolations = new Dictionary<Texture2D, string>();
-		public static List<ToggleButton> labels;
+		public static List<ToggleButton> PlayLabels;
+		public static List<ToggleButton> WorldLabels;
 
 		[HarmonyPriority(Priority.First)]
-		public static bool Prefix()
+		public static bool Prefix(bool worldView)
 		{
+			CaptureType = worldView switch
+			{
+				true when WorldLabels == null => CaptureType.World,
+				false when PlayLabels == null => CaptureType.Play,
+				_ => CaptureType.None
+			};
+
 			Running = true;
 			return true;
 		}
@@ -32,8 +40,8 @@ namespace TD_Enhancement_Pack
 		[HarmonyPriority(Priority.Last)]
 		public static void Postfix()
 		{
-			CapturingLabels = false;
 			Running = false;
+			CaptureType = CaptureType.None;
 		}
 
 		[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ToggleableIcon))]
@@ -51,7 +59,7 @@ namespace TD_Enhancement_Pack
 				var frame = trace.GetFrame(2);
 				var caller = frame?.GetMethod();
 				var callerAsm = caller?.DeclaringType?.Assembly;
-
+				
 				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
 					? callerAsm.GetName().Name + "." + tex.name
 					: tex.name;
@@ -95,14 +103,18 @@ namespace TD_Enhancement_Pack
 			if (!Running)
 				return true;
 
-			if (labels == null)
+			switch (CaptureType)
 			{
-				labels = new();
-				CapturingLabels = true;
-			}
+				case CaptureType.Play:
+					PlayLabels ??= new List<ToggleButton>();
+					PlayLabels.Add(new ToggleButton(texLabel, tex, tooltip));
+					break;
 
-			if (CapturingLabels)
-				labels.Add(new ToggleButton(texLabel, tex, tooltip));
+				case CaptureType.World:
+					WorldLabels ??= new List<ToggleButton>();
+					WorldLabels.Add(new ToggleButton(texLabel, tex, tooltip));
+					break;
+			}
 
 			if (!Mod.settings.toggleShowButtons.TryGetValue(texLabel, out var val))
 			{
@@ -162,5 +174,12 @@ namespace TD_Enhancement_Pack
 		public string setting { get; } = setting;
 		public Texture2D texture { get; } = texture;
 		public string tooltip { get; } = tooltip;
+	}
+
+	public enum CaptureType
+	{
+		None,
+		Play,
+		World,
 	}
 }

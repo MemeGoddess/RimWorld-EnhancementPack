@@ -5,6 +5,7 @@ using Verse;
 using RimWorld;
 using TD.Utilities;
 using System.Linq;
+using UnityEngine.UIElements;
 
 namespace TD_Enhancement_Pack
 {
@@ -167,7 +168,7 @@ namespace TD_Enhancement_Pack
 			options.LabelHeader("TD.SettingHeaderToggleButtons".Translate());
 			options.Label("TD.SettingHeaderToggleButtonsDesc".Translate());
 
-			if (RemoveUnusedToggles.labels == null)
+			if (RemoveUnusedToggles.PlayLabels == null && RemoveUnusedToggles.WorldLabels == null)
 			{
 				var color = GUI.color;
 				GUI.color = new Color(1f, 1f, 1f, 0.3f);
@@ -176,58 +177,60 @@ namespace TD_Enhancement_Pack
 			}
 			else
 			{
-				var cols = 5;
-				var buttonSize = 24f;
-				var spacing = 4f;
+				var leftHeight = TotalHeight(RemoveUnusedToggles.PlayLabels);
+				var rightHeight = TotalHeight(RemoveUnusedToggles.WorldLabels);
+				var maxHeight = Math.Max(leftHeight, rightHeight);
 
-				var data = RemoveUnusedToggles.labels.ToList();
-				var count = data.Count;
+				var mainRect = options.GetRect(32f + 12f + maxHeight);
 
-				var rows = Mathf.CeilToInt(count / (float)cols);
+				// Left
+				var left = new Listing_Standard();
+				
+				var width = mainRect.width / 2;
+				var leftRect = mainRect.LeftHalf();
+				left.Begin(leftRect);
 
-				var totalHeight = rows * buttonSize + (rows - 1) * spacing;
-				var gridRect = options.GetRect(totalHeight);
+				var iconRect = left.GetRect(32f);
+				iconRect.width = 32f;
+				iconRect.x = width / 2 - 16f;
+				var originalColor = GUI.color;
+				if (RemoveUnusedToggles.PlayLabels == null)
+					GUI.color = new Color(1f, 1f, 1f, 0.5f);
 
-				GUI.BeginGroup(gridRect);
+				GUI.DrawTexture(iconRect, TexButton.ShowMap);
+				GUI.color = originalColor;
 
-				for (var i = 0; i < count; i++)
-				{
-					var naturalRow = i / cols;
-					var naturalCol = i % cols;
+				var lineRect = left.GetRect(12f);
+				var lineHalfWidth = lineRect.width / 2;
+				Color save = GUI.color;
+				GUI.color = new Color(0.7f, 0.7f, 0.7f, 0.05f);
+				GUI.DrawTexture(new Rect(lineHalfWidth / 2, lineRect.y, lineHalfWidth, 3f), TexUI.FastFillTex);
+				GUI.color = save;
 
-					var row = (rows - 1) - naturalRow;
-					var col = (cols - 1) - naturalCol;
+				RenderToggleButtonGrid(RemoveUnusedToggles.PlayLabels, left);
+				left.End();
 
-					var x = col * (buttonSize + spacing);
-					var y = row * (buttonSize + spacing);
+				// Right
+				var right = new Listing_Standard();
+				var rightRect = mainRect.RightHalf();
+				right.Begin(rightRect);
+				if (RemoveUnusedToggles.WorldLabels == null)
+					GUI.color = new Color(1f, 1f, 1f, 0.2f);
 
-					var (setting, tex, tooltip) = data[i];
-					var checkedValue = toggleShowButtons[setting];
+				iconRect = right.GetRect(32f);
+				iconRect.width = 32f;
+				iconRect.x += width / 2 - 16f;
+				GUI.DrawTexture(iconRect, TexButton.ViewPlanet);
+				GUI.color = originalColor;
 
-					var rect = new Rect(x, y, buttonSize, buttonSize);
+				var rightLineRect = right.GetRect(12f);
+				var rightLineHalfWidth = rightLineRect.width / 2;
+				GUI.color = new Color(0.7f, 0.7f, 0.7f, 0.05f);
+				GUI.DrawTexture(new Rect(rightLineHalfWidth / 2, rightLineRect.y, lineHalfWidth, 3f), TexUI.FastFillTex);
+				GUI.color = save;
 
-					var oldColor = GUI.color;
-
-					if (!toggleShowButtons[setting]) 
-						GUI.color = new Color(1f, 1f, 1f, 0.3f);
-
-					GUI.DrawTexture(rect, tex);
-					TooltipHandler.TipRegion(rect, (TipSignal) tooltip);
-					if (Widgets.ButtonInvisible(rect))
-					{
-						toggleShowButtons[setting] = !checkedValue;
-						if(setting == "ShowFertilityOverlay")
-							BaseOverlay.SetDirty(typeof(FertilityOverlay));
-					}
-					GUI.color = oldColor;
-
-					Widgets.DrawHighlightIfMouseover(rect);
-
-				}
-
-				GUI.EndGroup();
-				options.Gap();
-
+				RenderToggleButtonGrid(RemoveUnusedToggles.WorldLabels, right);
+				right.End();
 			}
 
 			options.GapLine();
@@ -338,6 +341,83 @@ namespace TD_Enhancement_Pack
 
 			options.EndScrollView(ref viewRect);
 			scrollViewHeight = viewRect.height;
+		}
+
+		private float TotalHeight(List<ToggleButton> buttons)
+		{
+			if (buttons == null)
+				return 0;
+
+			var cols = 5;
+			var buttonSize = 24f;
+			var spacing = 4f;
+
+			var count = buttons.Count;
+			var rows = Mathf.CeilToInt(count / (float)cols);
+			var totalHeight = rows * buttonSize + (rows - 1) * spacing;
+			return totalHeight;
+		}
+
+		private void RenderToggleButtonGrid(List<ToggleButton> buttons, Listing_Standard options)
+		{
+			if(buttons == null)
+			{
+				options.Gap();
+				return;
+			}
+
+			var cols = 5;
+			var buttonSize = 24f;
+			var spacing = 4f;
+
+			var count = buttons.Count;
+			var rows = Mathf.CeilToInt(count / (float)cols);
+			var totalHeight = TotalHeight(buttons);
+			var gridRect = options.GetRect(totalHeight);
+			var width = gridRect.width;
+			var middlePoint = width / 2;
+			var gridWidth = spacing + cols * (buttonSize + spacing);
+			var gridHalfWidth = gridWidth / 2;
+			var offset = middlePoint - gridHalfWidth;
+			GUI.BeginGroup(gridRect);
+
+		  for (var i = 0; i < count; i++)
+			{
+				var naturalRow = i / cols;
+				var naturalCol = i % cols;
+
+				var row = (rows - 1) - naturalRow;
+				var col = (cols - 1) - naturalCol;
+
+				var x = spacing + col * (buttonSize + spacing) + offset;
+				var y = row * (buttonSize + spacing);
+
+				var (setting, tex, tooltip) = buttons[i];
+				var checkedValue = toggleShowButtons[setting];
+
+				var rect = new Rect(x, y, buttonSize, buttonSize);
+
+				var oldColor = GUI.color;
+
+				if (!toggleShowButtons[setting])
+					GUI.color = new Color(1f, 1f, 1f, 0.3f);
+
+				GUI.DrawTexture(rect, tex);
+				TooltipHandler.TipRegion(rect, (TipSignal)tooltip);
+				if (Widgets.ButtonInvisible(rect))
+				{
+					toggleShowButtons[setting] = !checkedValue;
+					if (setting == "ShowFertilityOverlay")
+						BaseOverlay.SetDirty(typeof(FertilityOverlay));
+				}
+				GUI.color = oldColor;
+
+				Widgets.DrawHighlightIfMouseover(rect);
+
+			}
+
+			GUI.EndGroup();
+			options.Gap();
 		}
 
 		public override void ExposeData()
