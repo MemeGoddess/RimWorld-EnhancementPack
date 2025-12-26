@@ -179,7 +179,21 @@ namespace TD_Enhancement_Pack.Overlays
 		public TradeBeaconType()
 		{
 			things = DefDatabase<ThingDef>.AllDefs
-				.Where(x => x.PlaceWorkers?.Any(y => y is PlaceWorker_ShowTradeBeaconRadius) ?? false)
+				.Where(x =>
+				{
+					try
+					{
+						return x.PlaceWorkers?.Any(y => y is PlaceWorker_ShowTradeBeaconRadius) ?? false;
+					}
+					catch (ArgumentNullException)
+					{
+						// No point giving extra warnings for blueprint and frame versions of defs
+						if(!x.defName.StartsWith("blueprint_", StringComparison.CurrentCultureIgnoreCase) && !x.defName.StartsWith("frame_", StringComparison.CurrentCultureIgnoreCase))
+							Verse.Log.Warning($"[TD Enhancement Pack] The def {x.defName} ('{x.label}') threw an exception when fetching PlaceWorkers. It's likely this is an issue with the mod it's from.");
+						return false;
+					}
+				})
+				.Where(x => !x.defName.StartsWith("blueprint_", StringComparison.CurrentCultureIgnoreCase) && !x.defName.StartsWith("frame_", StringComparison.CurrentCultureIgnoreCase))
 				.ToArray();
 		}
 	}
@@ -239,7 +253,7 @@ namespace TD_Enhancement_Pack.Overlays
 
 		public MoisturePumpType()
 		{
-			this.things = DefDatabase<ThingDef>.AllDefs
+			things = DefDatabase<ThingDef>.AllDefs
 				.Where(x => x.comps.Any(x => x is CompProperties_TerrainPumpDry))
 				.ToArray();
 		}
