@@ -8,6 +8,7 @@ using Verse;
 using RimWorld;
 using RimWorld.Planet;
 using HarmonyLib;
+using TD_Enhancement_Pack.Utilities;
 
 namespace TD_Enhancement_Pack.Overlays
 {
@@ -117,6 +118,7 @@ namespace TD_Enhancement_Pack.Overlays
 		public abstract ThingDef[] PlacingDef();
 		public virtual ThingDef[] CoverageDef() => PlacingDef();
 		public virtual float Radius() => CoverageDef().FirstOrDefault()?.specialDisplayRadius ?? 0f;
+		public virtual bool AppliesTo(Thing thing) => true;
 		public bool MakeActive(ThingDef def)
 		{
 			bool nowActive = PlacingDef().Any(placing => def == placing);
@@ -130,22 +132,22 @@ namespace TD_Enhancement_Pack.Overlays
 
 		public void Init()
 		{
-			
-			HashSet<IntVec3> centers = new HashSet<IntVec3>(CoverageDef().SelectMany(def => Find.CurrentMap.listerThings.ThingsOfDef(def)).Select(t => t.Position));
+			var centers = new HashSet<IntVec3>(CoverageDef()
+				.SelectMany(def => Find.CurrentMap.listerThings.ThingsOfDef(def).Where(AppliesTo)).Select(t => t.Position));
 
 			centers.AddRange(Find.CurrentMap.listerThings.ThingsInGroup(ThingRequestGroup.Blueprint)
-				.Where(bp => CoverageDef().Any(coverage => coverage == GenConstruct.BuiltDefOf(bp.def) as ThingDef)).Select(t => t.Position).ToList());
+				.Where(bp => CoverageDef().Any(coverage => coverage == GenConstruct.BuiltDefOf(bp.def) as ThingDef) && AppliesTo(bp)).Select(t => t.Position).ToList());
 
 			centers.AddRange(Find.CurrentMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingFrame)
-				.Where(frame => CoverageDef().Any(coverage => coverage == GenConstruct.BuiltDefOf(frame.def) as ThingDef)).Select(t => t.Position).ToList());
+				.Where(frame => CoverageDef().Any(coverage => coverage == GenConstruct.BuiltDefOf(frame.def) as ThingDef) && AppliesTo(frame)).Select(t => t.Position).ToList());
 
 			covered.Clear();
 
-			float radius = Radius();
-			foreach (IntVec3 center in centers)
+			var radius = Radius();
+			foreach (var center in centers)
 			{
-				int num = GenRadial.NumCellsInRadius(radius);
-				for (int i = 0; i < num; i++)
+				var num = GenRadial.NumCellsInRadius(radius);
+				for (var i = 0; i < num; i++)
 					covered.Add(center + GenRadial.RadialPattern[i]);
 			}
 		}
@@ -179,27 +181,41 @@ namespace TD_Enhancement_Pack.Overlays
 		public TradeBeaconType()
 		{
 			things = DefDatabase<ThingDef>.AllDefs
-				.Where(x =>
-				{
-					try
-					{
-						return x.PlaceWorkers?.Any(y => y is PlaceWorker_ShowTradeBeaconRadius) ?? false;
-					}
-					catch (ArgumentNullException)
-					{
-						// No point giving extra warnings for blueprint and frame versions of defs
-						if(!x.defName.StartsWith("blueprint_", StringComparison.CurrentCultureIgnoreCase) && !x.defName.StartsWith("frame_", StringComparison.CurrentCultureIgnoreCase))
-							Verse.Log.Warning($"[TD Enhancement Pack] The def {x.defName} ('{x.label}') threw an exception when fetching PlaceWorkers. It's likely this is an issue with the mod it's from.");
-						return false;
-					}
-				})
-				.Where(x => !x.defName.StartsWith("blueprint_", StringComparison.CurrentCultureIgnoreCase) && !x.defName.StartsWith("frame_", StringComparison.CurrentCultureIgnoreCase))
+				.WhereDefGuarded(x => x.PlaceWorkers?.Any(y => y is PlaceWorker_ShowTradeBeaconRadius) ?? false)
+				.RemoveBlueprints()
 				.ToArray();
 		}
 	}
+
+	public class ChairType : CoverageType
+	{
+		readonly ThingDef[] things;
+		private readonly float radius;
+		public override ThingDef[] PlacingDef() => things;
+
+		public ChairType()
+		{
+			things = DefDatabase<ThingDef>.AllDefs
+				.WhereDefGuarded(x => x.building?.isSittable ?? false)
+				.RemoveBlueprints()
+				.ToArray();
+
+			// Is this the best way to get this? *shrugs*
+			radius = new IngestibleProperties().chairSearchRadius;
+		}
+		public override float Radius() => radius;
+		public override bool AppliesTo(Thing thing)
+		{
+			var pos = thing.Position;
+			return pos.GetThingList(Find.CurrentMap).Any(t => t.def.IsOrBuildsToTable()) ||
+			       GenAdj.CardinalDirections.Any(dir => (pos + dir).GetThingList(Find.CurrentMap).Any(t => t.def.IsOrBuildsToTable()));
+		}
+	}
+
 	public class SunLampType : CoverageType
 	{
-		public override ThingDef[] PlacingDef() => [MoreThingDefOf.SunLamp];
+		public override ThingDef[] PlacingDef() => [MoreThingDefOf.SunLamp, ThingDefOf.HydroponicsBasin];
+		public override ThingDef[] CoverageDef() => [MoreThingDefOf.SunLamp];
 	}
 	public class FirefoamPopperType : CoverageType
 	{
