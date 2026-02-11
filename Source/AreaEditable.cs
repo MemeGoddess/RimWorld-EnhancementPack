@@ -553,12 +553,13 @@ namespace TD_Enhancement_Pack
 		public void Notify_Removed(Area areaBase)
 		{
 			if (!(areaBase is Area_Allowed area)) return;
-			int index = areaIndex[area.ID];
-			areaIndex.Remove(area.ID);
+			if (!areaIndex.Remove(area.ID, out var index)) return;
 
 			List<int> keys = new List<int>(areaIndex.Keys);
 			foreach (int key in keys)
 			{
+				if (!areaIndex.ContainsKey(key)) continue;
+
 				if (areaIndex[key] > index)
 					areaIndex[key]--;
 			}
