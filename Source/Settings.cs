@@ -123,6 +123,8 @@ namespace TD_Enhancement_Pack
 		private List<string> toggleShowButtonsKeys = new List<string>();
 		private List<bool> toggleShowButtonsValues = new List<bool>();
 
+		public bool rememberDesignatorShape = true;
+
 		public void DoWindowContents(Rect wrect)
 		{
 			var options = new Listing_Standard();
@@ -282,6 +284,8 @@ namespace TD_Enhancement_Pack
 			options.LabelHeader("TD.SettingsHeaderInfo".Translate());
 			options.CheckboxLabeled("TD.SettingRememberResourceReadout".Translate(), ref rememberResourceReadout);
 			options.CheckboxLabeled("TD.SettingNewGameOpenResourceReadout".Translate(), ref startOpenResourceReadout);
+			options.Gap();
+			options.CheckboxLabeled("TD.SettingRememberShape".Translate(), ref rememberDesignatorShape);
 			options.Gap();
 			options.CheckboxLabeled("TD.SettingPawnTableHighlightSelected".Translate(), ref pawnTableHighlightSelected, "TD.SettingPawnTableHighlightSelectedDesc".Translate());
 			options.CheckboxLabeled("TD.SettingPawnTableArrowMouseover".Translate(), ref pawnTableArrowMouseover);

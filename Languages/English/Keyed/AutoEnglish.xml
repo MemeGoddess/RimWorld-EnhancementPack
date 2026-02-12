@@ -147,6 +147,7 @@
 	<TD.AlertToxic>A colonist has non-trivial levels of toxic buildup. That's not a good thing.</TD.AlertToxic>
 	<TD.SettingRememberResourceReadout>Resource readout state is saved per-game (categorized mode)</TD.SettingRememberResourceReadout>
 	<TD.SettingNewGameOpenResourceReadout>New game: resource readout starts with each category open</TD.SettingNewGameOpenResourceReadout>
+	<TD.SettingRememberShape>Remember designator shape until Architect tab is closed</TD.SettingRememberShape>
 	<TD.AlertWindBlocked>Alert for wind-blocked turbines</TD.AlertWindBlocked>
 	<TD.WindBlocked>Wind blocked</TD.WindBlocked>
 	<TD.WindBlockedDesc>Something is blocking wind, and you probably don't want it blocking wind</TD.WindBlockedDesc>
