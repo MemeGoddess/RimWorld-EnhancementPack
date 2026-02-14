@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
+  <MarketValuePerFullStack.label>値段/最大スタック</MarketValuePerFullStack.label>
   <MarketValuePerMass.label>値段/重量</MarketValuePerMass.label>
 
 </LanguageData>

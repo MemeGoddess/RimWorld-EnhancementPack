@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-  
+
+  <TransferableSorterDef>
+    <defName>MarketValuePerFullStack</defName>
+    <label>value/full stack</label>
+    <comparerClass>TD_Enhancement_Pack.TransferableComparer_ValuePerFullStack</comparerClass>
+  </TransferableSorterDef>
+
   <TransferableSorterDef>
     <defName>MarketValuePerMass</defName>
     <label>value/mass</label>
     <comparerClass>TD_Enhancement_Pack.TransferableComparer_ValuePerMass</comparerClass>
   </TransferableSorterDef>
-  
+
 </Defs>
