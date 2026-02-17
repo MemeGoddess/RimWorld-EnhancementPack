@@ -487,6 +487,7 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref pawnTableHighlightSelected, "pawnTableHighlightSelected", true);
 			Scribe_Values.Look(ref pawnTableArrowMouseover, "pawnTableArrowMouseover", true);
 			Scribe_Values.Look(ref rememberResourceReadout, "rememberResourceReadout", true);
+			Scribe_Values.Look(ref rememberDesignatorShape, "rememberDesignatorShape", true);
 			Scribe_Values.Look(ref startOpenResourceReadout, "startOpenResourceReadout", false);
 			Scribe_Values.Look(ref pawnTableClickSelect, "pawnTableClickSelect", false);
 			Scribe_Values.Look(ref ctrlShiftQueueFront, "ctrlShiftQueueFront", true);
