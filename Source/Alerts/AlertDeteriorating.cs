@@ -18,9 +18,10 @@ namespace TD_Enhancement_Pack
 				{
 					foreach(Thing thing in map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver))
 					{
-						if (!thing.IsForbidden(Faction.OfPlayer) &&
-							SteadyEnvironmentEffects.FinalDeteriorationRate(thing) > 0 &&
+						if (
 							thing.HitPoints < thing.MaxHitPoints * 0.5f &&
+							!thing.IsForbidden(Faction.OfPlayer) &&
+							SteadyEnvironmentEffects.FinalDeteriorationRate(thing) > 0 &&
 							!thing.Position.Fogged(map) &&
 							(!(thing is Corpse corpse) || corpse.GetRotStage() == RotStage.Fresh))
 						{
