@@ -14,42 +14,42 @@ using RimWorld.Planet;
 namespace TD_Enhancement_Pack
 {
 	[StaticConstructorOnStartup]
-	[HarmonyPatch(typeof(Pawn), "GetGizmos")]
+	[HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
 	public static class StopGizmo
 	{
 		private static Texture2D StopIcon = ContentFinder<Texture2D>.Get("Stop", true);
+		private static string TDStopGizmo = "TD.StopGizmo".Translate();
+		private static string TDStopDescDrafted = "TD.StopDescDrafted".Translate() + "\n\n" + "TD.AddedByTD".Translate();
+		private static string TDStopDescUndrafted = "TD.StopDescUndrafted".Translate() + "\n\n" + "TD.AddedByTD".Translate();
 
 		//public override IEnumerable<Gizmo> GetGizmos()
-		public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> result, Pawn __instance)
+		public static void Postfix(ref IEnumerable<Gizmo> __result, Pawn __instance)
 		{
-			foreach( Gizmo gizmo in result )
-				yield return gizmo;
+			if (__instance.Drafted ? !Mod.settings.showStopGizmoDrafted : !Mod.settings.showStopGizmo) return;
 
-			if (__instance.Drafted ? !Mod.settings.showStopGizmoDrafted : !Mod.settings.showStopGizmo) yield break;
-
-			if (Find.World.renderer.wantedMode != WorldRenderMode.None) yield break;
+			if (Find.World.renderer.wantedMode != WorldRenderMode.None) return;
 
 
 			if (!DebugSettings.godMode)
 			{
 				if (!(__instance.drafter?.ShowDraftGizmo ?? false))
-					yield break;
+					return;
 
 				if (__instance.jobs.curJob != null && !__instance.jobs.IsCurrentJobPlayerInterruptible())
-					yield break;
+					return;
 
 				if (__instance.Downed || __instance.Deathresting)
-					yield break;
+					return;
 
 				if (ModsConfig.BiotechActive && __instance.IsColonyMech && !MechanitorUtility.CanDraftMech(__instance))
-					yield break;
+					return;
 			}
 
-			yield return new Command_Action()
+			__result = __result.AddItem(new Command_Action()
 			{
-				defaultLabel = "TD.StopGizmo".Translate(),
+				defaultLabel = TDStopGizmo,
 				icon = StopIcon,
-				defaultDesc = (__instance.Drafted ? "TD.StopDescDrafted".Translate() : "TD.StopDescUndrafted".Translate()) + "\n\n" + "TD.AddedByTD".Translate(),
+				defaultDesc = __instance.Drafted ? TDStopDescDrafted : TDStopDescUndrafted,
 				action = delegate
 				{
 					foreach (Pawn pawn in Find.Selector.SelectedObjects.Where(o => o is Pawn).Cast<Pawn>())
@@ -59,7 +59,7 @@ namespace TD_Enhancement_Pack
 				},
 				hotKey = KeyBindingDefOf.Designator_Deconstruct,
 				Order = -30f
-			};
+			});
 		}
 	}
 }
