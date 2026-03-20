@@ -96,6 +96,14 @@
 	<TD.SettingBillCountEquippedAnyDesc>Weapon and Apparel always do, but why not count meals + medicine in your inventory?</TD.SettingBillCountEquippedAnyDesc>
 	<TD.SettingTopRightMouseover>Mouseover tile info is on topright</TD.SettingTopRightMouseover>
 	<TD.SettingTopRightMouseoverDesc>So it shows up when something is selected\n\nOf course this is a bad idea if you still have the learning helper on.</TD.SettingTopRightMouseoverDesc>
+
+	<TD.SettingMouseOverLocation>Mouseover tile info location</TD.SettingMouseOverLocation>
+	<TD.SettingMouseOverLocationDesc>Choose where the mouseover tile info will be displayed on the screen.</TD.SettingMouseOverLocationDesc>
+	<TD.SettingMouseOverLocationOptionTopRight>Top Right</TD.SettingMouseOverLocationOptionTopRight>
+	<TD.SettingMouseOverLocationOptionBottomLeft>Bottom Left</TD.SettingMouseOverLocationOptionBottomLeft>
+	<TD.SettingMouseOverLocationOptionMouse>Mouse</TD.SettingMouseOverLocationOptionMouse>
+	
+
 	<TD.SettingPawnTableHighlightSelected>Show selected pawns in tables</TD.SettingPawnTableHighlightSelected>
 	<TD.SettingPawnTableHighlightSelectedDesc>Tables like the work tab, wildlife tab, etc.</TD.SettingPawnTableHighlightSelectedDesc>
 	<TD.SettingPawnTableArrowMouseover>Show arrow pointing to pawn in tables</TD.SettingPawnTableArrowMouseover>

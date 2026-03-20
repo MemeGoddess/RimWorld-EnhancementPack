@@ -62,10 +62,25 @@ namespace TD_Enhancement_Pack
 
 		public static void DrawTextWinterShadowTR(Rect badRect)
 		{
-			if (Mod.settings.mouseoverInfoTopRight)
-				GenUI.DrawTextWinterShadow(new Rect(UI.screenWidth - 256f, 256f, 256f, -256f));
-			else
-				GenUI.DrawTextWinterShadow(badRect);
+			switch (Mod.settings.mouseoverInfoLocation)
+			{
+				case MouseoverInfoLocation.BottomLeft:
+					GenUI.DrawTextWinterShadow(badRect);
+					break;
+				case MouseoverInfoLocation.TopRight:
+					GenUI.DrawTextWinterShadow(new Rect(UI.screenWidth - 256f, 256f, 256f, -256f));
+					break;
+				case MouseoverInfoLocation.Mouse:
+					var mouse = Event.current.mousePosition;
+					var rect = new Rect(mouse, new Vector2(256f, 256f));
+					GenUI.DrawTextWinterShadow(rect);
+					break;
+				case null:
+					GenUI.DrawTextWinterShadow(badRect);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 		}
 
 		public static void LabelTransform(Rect rect, string label)
@@ -78,19 +93,26 @@ namespace TD_Enhancement_Pack
 		}
 		public static Rect Transform(Rect rect, string label)
 		{
-			if (Mod.settings.mouseoverInfoTopRight)
+			switch (Mod.settings.mouseoverInfoLocation)
 			{
-				//rect = new Rect(MouseoverReadout.BotLeft.x, (float)UI.screenHeight - MouseoverReadout.BotLeft.y - num, 999f, 999f);
-				rect.x = UI.screenWidth - rect.x; //flip x
-				rect.y = UI.screenHeight - rect.y - 50f; //flip y, adjust for maintabs margin: BotLeft.y = 65f, BotLeft.x = 15f
-				rect.x -= Text.CalcSize(label).x;//adjust for text width
+				case MouseoverInfoLocation.TopRight:
+					rect.x = UI.screenWidth - rect.x; //flip x
+					rect.y = UI.screenHeight - rect.y - 50f; //flip y, adjust for maintabs margin: BotLeft.y = 65f, BotLeft.x = 15f
+					rect.x -= Text.CalcSize(label).x;//adjust for text width
+					break;
+				case MouseoverInfoLocation.Mouse:
+					var mouse = Event.current.mousePosition;
+					rect.y = UI.screenHeight - rect.y - 50f; //flip y, adjust for maintabs margin: BotLeft.y = 65f, BotLeft.x = 15f
+					rect.position += mouse;
+					break;
 			}
+
 			return rect;
 		}
 
 		public static MainButtonDef FilterForOpenTab(MainButtonDef def)
 		{
-			return Mod.settings.mouseoverInfoTopRight ? null : def;
+			return Mod.settings.mouseoverInfoLocation != MouseoverInfoLocation.BottomLeft ? null : def;
 		}
 
 	}
