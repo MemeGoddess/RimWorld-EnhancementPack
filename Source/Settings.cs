@@ -82,6 +82,7 @@ namespace TD_Enhancement_Pack
 		public bool selectedItemsZoomButton = true;
 		public bool mouseoverInfoTopRight = false;
 		public MouseoverInfoLocation? mouseoverInfoLocation = null;
+		public bool mouseLocationDoFade = true;
 		public bool stopForcedSlowdown = true;
 
 		public bool alertDeteriorating = true;
@@ -297,6 +298,7 @@ namespace TD_Enhancement_Pack
 			options.Gap();
 			//options.CheckboxLabeled("TD.SettingTopRightMouseover".Translate(), ref mouseoverInfoTopRight, "TD.SettingTopRightMouseoverDesc".Translate());
 			DoMouseTileLocationSetting(options);
+			options.CheckboxLabeled("TD.SettingFadeMouseover".Translate(), ref mouseLocationDoFade);
 
 			options.CheckboxLabeled("TD.SettingStopForcedSlowdown".Translate(), ref stopForcedSlowdown);
 			options.CheckboxLabeled("TD.SettingTradeClose".Translate(), ref changeSpeedAfterTrader);
@@ -517,6 +519,7 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref selectedItemsZoomButton, "selectedItemsZoomButton", true);
 
 			Scribe_Values.Look(ref mouseoverInfoLocation, "mouseoverInfoLocation");
+			Scribe_Values.Look(ref mouseLocationDoFade, "mouseLocationDoFade");
 
 			if(mouseoverInfoLocation == null)
 			{

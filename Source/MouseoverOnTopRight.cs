@@ -14,6 +14,10 @@ namespace TD_Enhancement_Pack
 	[HarmonyPatch]
 	public static class MouseoverOnTopRight
 	{
+		static Vector2 lastMousePos = Vector2.zero;
+		private static double timeLastMoved;
+		private const double secondsWaitUnfade = 0.25;
+		private const double secondsDurationUnfade = 0.25;
 
 		[HarmonyTargetMethods]
 		public static IEnumerable<MethodBase> TargetMethods()
@@ -59,7 +63,6 @@ namespace TD_Enhancement_Pack
 			}
 		}
 
-
 		public static void DrawTextWinterShadowTR(Rect badRect)
 		{
 			switch (Mod.settings.mouseoverInfoLocation)
@@ -85,11 +88,55 @@ namespace TD_Enhancement_Pack
 
 		public static void LabelTransform(Rect rect, string label)
 		{
+			var didColourChange = false;
+			var colour = GUI.color;
+			if (Mod.settings.mouseoverInfoLocation == MouseoverInfoLocation.Mouse)
+			{
+				var timeSinceLastMoved = Time.realtimeSinceStartupAsDouble - timeLastMoved;
+				float alpha;
+				if (timeSinceLastMoved <= secondsWaitUnfade)
+				{
+					alpha = 0.4f;
+				}
+				else
+				{
+					alpha = Mathf.Clamp((float)((timeSinceLastMoved - secondsWaitUnfade) / secondsDurationUnfade), 0.4f, 1);
+				}
+
+				didColourChange = true;
+				GUI.color = new Color(colour.r, colour.g, colour.b, colour.a * alpha);
+			}
+
 			Widgets.Label(Transform(rect, label), label);
+
+			if (didColourChange)
+				GUI.color = colour;
 		}
 		public static void LabelTaggedTransform(Rect rect, TaggedString label)
 		{
+			var didColourChange = false;
+			var colour = GUI.color;
+			if (Mod.settings.mouseoverInfoLocation == MouseoverInfoLocation.Mouse)
+			{
+				var timeSinceLastMoved = Time.realtimeSinceStartupAsDouble - timeLastMoved;
+				float alpha;
+				if (timeSinceLastMoved <= secondsWaitUnfade)
+				{
+					alpha = 0.4f;
+				}
+				else
+				{
+					alpha = Mathf.Clamp((float)((timeSinceLastMoved - secondsWaitUnfade) / secondsDurationUnfade), 0.4f, 1);
+				}
+
+				didColourChange = true;
+				GUI.color = new Color(colour.r, colour.g, colour.b, colour.a * alpha);
+			}
+
 			Widgets.Label(Transform(rect, label), label);
+
+			if (didColourChange)
+				GUI.color = colour;
 		}
 		public static Rect Transform(Rect rect, string label)
 		{
@@ -102,6 +149,11 @@ namespace TD_Enhancement_Pack
 					break;
 				case MouseoverInfoLocation.Mouse:
 					var mouse = Event.current.mousePosition;
+					if (mouse != lastMousePos)
+					{
+						timeLastMoved = Time.realtimeSinceStartupAsDouble;
+						lastMousePos = mouse;
+					}
 					rect.y = UI.screenHeight - rect.y - 50f; //flip y, adjust for maintabs margin: BotLeft.y = 65f, BotLeft.x = 15f
 					rect.position += mouse;
 					break;

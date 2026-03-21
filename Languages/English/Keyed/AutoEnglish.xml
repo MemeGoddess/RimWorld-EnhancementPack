@@ -102,7 +102,7 @@
 	<TD.SettingMouseOverLocationOptionTopRight>Top Right</TD.SettingMouseOverLocationOptionTopRight>
 	<TD.SettingMouseOverLocationOptionBottomLeft>Bottom Left</TD.SettingMouseOverLocationOptionBottomLeft>
 	<TD.SettingMouseOverLocationOptionMouse>Mouse</TD.SettingMouseOverLocationOptionMouse>
-	
+	<TD.SettingFadeMouseover>Fade mouseover info when the mouse is moving</TD.SettingFadeMouseover>
 
 	<TD.SettingPawnTableHighlightSelected>Show selected pawns in tables</TD.SettingPawnTableHighlightSelected>
 	<TD.SettingPawnTableHighlightSelectedDesc>Tables like the work tab, wildlife tab, etc.</TD.SettingPawnTableHighlightSelectedDesc>
