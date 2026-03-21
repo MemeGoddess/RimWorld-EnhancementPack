@@ -519,7 +519,7 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref selectedItemsZoomButton, "selectedItemsZoomButton", true);
 
 			Scribe_Values.Look(ref mouseoverInfoLocation, "mouseoverInfoLocation");
-			Scribe_Values.Look(ref mouseLocationDoFade, "mouseLocationDoFade");
+			Scribe_Values.Look(ref mouseLocationDoFade, "mouseLocationDoFade", true);
 
 			if(mouseoverInfoLocation == null)
 			{
