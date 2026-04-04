@@ -14,18 +14,29 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	class TreeGrowthOverlay : BaseOverlay
 	{
+		private HashSet<int> _shownCells = [];
+		private HashSet<int> _checkedCells = [];
+		private HashSet<int> _fullyGrown = [];
+		private Dictionary<float, Color> _lerpedColor = [];
+		private Plant[] _plantCache;
 		public TreeGrowthOverlay() : base() { }
 
 		public override bool ShowCell(int index)
 		{
-			foreach (Thing thing in Find.CurrentMap.thingGrid.ThingsListAtFast(index))
-				if (thing.def.plant is PlantProperties props && props.harvestTag == "Wood" && props.Harvestable)
-					return true;
-			return false;
+			if (_shownCells.Contains(index))
+				return true;
+
+			if (_checkedCells.Contains(index))
+				return false;
+
+			return _checkedCells.Add(index) && IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
 		}
 		public override Color GetCellExtraColor(int index)
 		{
-			Plant tree = Find.CurrentMap.thingGrid.ThingsListAtFast(index).FirstOrDefault(t => t.def.plant?.harvestTag == "Wood") as Plant;
+			if (!_shownCells.Contains(index))
+				return Color.white.ToTransparent(0);
+
+			var tree = FindPlant(index);
 			if (tree == null) return Color.magenta;//shouldn't happen
 
 			return tree.LifeStage == PlantLifeStage.Mature ? Color.white :
@@ -34,40 +45,120 @@ namespace TD_Enhancement_Pack
 				Color.red;
 		}
 
+		public static bool IsValidPlant(Plant plant) =>
+			plant?.def.plant is { harvestTag: "Wood", Harvestable: true };
 
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
 		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
+
+		public override void Clear()
+		{
+			_shownCells.Clear();
+			_checkedCells.Clear();
+			_fullyGrown.Clear();
+			_plantCache = null;
+		}
+
+		public void Register(int index, Plant plant)
+		{
+			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
+			_shownCells.Add(index);
+			_plantCache[index] = plant;
+		}
+
+		public void Deregister(int index)
+		{
+			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
+			_shownCells.Remove(index);
+			_checkedCells.Remove(index);
+			_fullyGrown.Remove(index);
+			_plantCache[index] = null;
+		}
+
+		private Plant FindPlant(int index)
+		{
+			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
+			var plant = _plantCache[index];
+			if (plant != null)
+				return plant;
+
+			plant = Find.CurrentMap.thingGrid.ThingsListAtFast(index)
+				.FirstOrDefault(t => t is Plant plant &&  IsValidPlant(plant)) as Plant;
+
+
+			if (plant == null)
+			{
+				_shownCells.Remove(index);
+				return null;
+			}
+
+			_plantCache[index] = plant;
+
+			return plant;
+		}
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]
 	public static class ThingDirtierDeregister_TreeGrowth
 	{
+		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				if (t is Plant)
-					BaseOverlay.SetDirty(typeof(TreeGrowthOverlay));
+			if (___map != Find.CurrentMap) 
+				return;
+			if (t is not Plant plant || !TreeGrowthOverlay.IsValidPlant(plant))
+				return;
+
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			overlay.Deregister(___map.cellIndices.CellToIndex(t.Position));
+			overlay.SetDirty();
+		}
+	}
+
+	[HarmonyPatch(typeof(ThingGrid), "Register")]
+	public static class ThingDirtierRegister_TreeGrowth
+	{
+		private static TreeGrowthOverlay overlay;
+		public static void Postfix(Thing t, Map ___map)
+		{
+
+			if (___map != Find.CurrentMap)
+				return;
+			if (t is not Plant plant || !TreeGrowthOverlay.IsValidPlant(plant))
+				return;
+
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
+			overlay.SetDirty();
 		}
 	}
 
 	[HarmonyPatch(typeof(Plant), "PlantCollected")]
 	public static class PlantCollected
 	{
-		//public virtual void PlantCollected()
+		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Plant __instance)
 		{
-			if (__instance.Map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(TreeGrowthOverlay));
+			if (__instance.Map != Find.CurrentMap)
+				return;
+
+			if (!PlantHarvestOverlay.IsValidPlant(__instance))
+				return;
+
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			overlay.Deregister(__instance.Map.cellIndices.CellToIndex(__instance.Position));
+			overlay.SetDirty();
 		}
 	}
 
-	[HarmonyPatch(typeof(TickList), "Tick")]
+	[HarmonyPatch(typeof(Plant), "TickLong")]
 	public static class TickGrow
 	{
-		public static void Postfix(TickerType ___tickType)
+		private static TreeGrowthOverlay overlay;
+		public static void Postfix()
 		{
-			if (___tickType == TickerType.Long)
-				BaseOverlay.SetDirty(typeof(TreeGrowthOverlay));
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			overlay.SetDirty();
 		}
 	}
 }

@@ -25,6 +25,11 @@ namespace TD_Enhancement_Pack
 			return overlay;
 		}
 
+		public static T GetOverlay<T>() where T : BaseOverlay
+		{
+			return (T)GetOverlay(typeof(T));
+		}
+
 		public static List<Type> overlayTypes = typeof(BaseOverlay).AllSubclassesNonAbstract().ToList();
 		public static IEnumerable<BaseOverlay> AllOverlays()
 		{
@@ -62,7 +67,10 @@ namespace TD_Enhancement_Pack
 		{
 			foreach (BaseOverlay overlay in overlays.Values)
 				if(overlay.drawer != null)
+				{
 					overlay.MakeDrawer();
+					overlay.Clear();
+				}
 		}
 
 		public bool GetCellBool(int index)
