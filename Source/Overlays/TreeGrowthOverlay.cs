@@ -14,28 +14,31 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	class TreeGrowthOverlay : BaseOverlay
 	{
-		private HashSet<int> _shownCells = [];
-		private HashSet<int> _checkedCells = [];
-		private HashSet<int> _fullyGrown = [];
+		private bool[] _shownCells;
+		private bool[] _checkedCells;
 		private Dictionary<float, Color> _lerpedColor = [];
 		private Plant[] _plantCache;
 		public TreeGrowthOverlay() : base() { }
 
 		public override bool ShowCell(int index)
 		{
-			if (_checkedCells.Contains(index))
+			_checkedCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_checkedCells[index])
 				return false;
-			if (_shownCells.Contains(index))
+			_shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_shownCells[index])
 				return true;
 
-			var valid = IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
-			if (!valid)
-				_checkedCells.Add(index);
+			var valid = IsValidPlant(FindPlant(index));
+			if (valid)
+				_shownCells[index] = true;
+			else
+				_checkedCells[index] = true;
 			return valid;
 		}
 		public override Color GetCellExtraColor(int index)
 		{
-			if (!_shownCells.Contains(index))
+			if (!_shownCells[index])
 				return Color.white.ToTransparent(0);
 
 			var tree = FindPlant(index);
@@ -55,26 +58,31 @@ namespace TD_Enhancement_Pack
 
 		public override void Clear()
 		{
-			_shownCells.Clear();
-			_checkedCells.Clear();
-			_fullyGrown.Clear();
+
+			_shownCells = null;
+			_checkedCells = null;
 			_plantCache = null;
 		}
 
 		public void Register(int index, Plant plant)
 		{
+			var numCells = Find.CurrentMap.cellIndices.NumGridCells;
+			_shownCells ??= new bool[numCells];
+			_checkedCells ??= new bool[numCells];
 			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			_shownCells.Add(index);
-			_checkedCells.Remove(index);
+			_shownCells[index] = true;
+			_checkedCells[index] = false;
 			_plantCache[index] = plant;
 		}
 
 		public void Deregister(int index)
 		{
+			var numCells = Find.CurrentMap.cellIndices.NumGridCells;
+			_shownCells ??= new bool[numCells];
+			_checkedCells ??= new bool[numCells];
 			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			_shownCells.Remove(index);
-			_checkedCells.Remove(index);
-			_fullyGrown.Remove(index);
+			_shownCells[index] = false;
+			_checkedCells[index] = false;
 			_plantCache[index] = null;
 		}
 
@@ -91,7 +99,8 @@ namespace TD_Enhancement_Pack
 
 			if (plant == null)
 			{
-				_shownCells.Remove(index);
+				_shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+				_shownCells[index] = false;
 				return null;
 			}
 

@@ -13,28 +13,32 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	class PlantHarvestOverlay : BaseOverlay
 	{
-		private HashSet<int> _shownCells = [];
-		private HashSet<int> _checkedCells = [];
+		private bool[] _shownCells;
+		private bool[] _checkedCells;
 		private Dictionary<float, Color> _lerpedColor = [];
 		private Plant[] _plantCache;
 		public PlantHarvestOverlay() : base() { }
 
 		public override bool ShowCell(int index)
 		{
-			if (_checkedCells.Contains(index))
+			_checkedCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_checkedCells[index])
 				return false;
-			if (_shownCells.Contains(index))
+			_shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_shownCells[index])
 				return true;
 
-			var valid = IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
-			if (!valid)
-				_checkedCells.Add(index);
+			var valid = IsValidPlant(FindPlant(index));
+			if (valid)
+				_shownCells[index] = true;
+			else
+				_checkedCells[index] = true;
 			return valid;
 		}
 
 		public override Color GetCellExtraColor(int index)
 		{
-			if (!_shownCells.Contains(index))
+			if (!_shownCells[index])
 				return Color.white.ToTransparent(0);
 
 			var plant = FindPlant(index);
@@ -63,24 +67,30 @@ namespace TD_Enhancement_Pack
 		public override string IconTip() => "TD.TogglePlantHarveset".Translate();
 		public override void Clear()
 		{
-			_shownCells.Clear();
-			_checkedCells.Clear();
+			_shownCells = null;
+			_checkedCells = null;
 			_plantCache = null;
 		}
 
 		public void Register(int index, Plant plant)
 		{
-			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			_shownCells.Add(index);
-			_checkedCells.Remove(index);
+			var numCells = Find.CurrentMap.cellIndices.NumGridCells;
+			_shownCells ??= new bool[numCells];
+			_checkedCells ??= new bool[numCells];
+			_plantCache ??= new Plant[numCells];
+			_shownCells[index] = true;
+			_checkedCells[index] = false;
 			_plantCache[index] = plant;
 		}
 
 		public void Deregister(int index)
 		{
-			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			_shownCells.Remove(index);
-			_checkedCells.Remove(index);
+			var numCells = Find.CurrentMap.cellIndices.NumGridCells;
+			_shownCells ??= new bool[numCells];
+			_checkedCells ??= new bool[numCells];
+			_plantCache ??= new Plant[numCells];
+			_shownCells[index] = false;
+			_checkedCells[index] = false;
 			_plantCache[index] = null;
 		}
 
@@ -97,7 +107,8 @@ namespace TD_Enhancement_Pack
 			
 			if(plant == null)
 			{
-				_shownCells.Remove(index);
+				_shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+				_shownCells[index] = false;
 				return null;
 			}
 
