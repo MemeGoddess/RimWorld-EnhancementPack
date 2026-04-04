@@ -15,20 +15,21 @@ namespace TD_Enhancement_Pack
 	{
 		private HashSet<int> _shownCells = [];
 		private HashSet<int> _checkedCells = [];
-		private HashSet<int> _fullyGrown = [];
 		private Dictionary<float, Color> _lerpedColor = [];
 		private Plant[] _plantCache;
 		public PlantHarvestOverlay() : base() { }
 
 		public override bool ShowCell(int index)
 		{
+			if (_checkedCells.Contains(index))
+				return false;
 			if (_shownCells.Contains(index))
 				return true;
 
-			if (_checkedCells.Contains(index))
-				return false;
-
-			return _checkedCells.Add(index) && IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
+			var valid = IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
+			if (!valid)
+				_checkedCells.Add(index);
+			return valid;
 		}
 
 		public override Color GetCellExtraColor(int index)
@@ -39,7 +40,7 @@ namespace TD_Enhancement_Pack
 			var plant = FindPlant(index);
 			if (plant == null) return Color.magenta;//shouldn't happen
 
-			if(_fullyGrown.Contains(index) || (plant.LifeStage == PlantLifeStage.Mature && _fullyGrown.Add(index)))
+			if(plant.Growth > 0.99900001287460327)
 				return Color.white;
 
 			if (_lerpedColor.TryGetValue(plant.Growth, out var color))
@@ -64,7 +65,6 @@ namespace TD_Enhancement_Pack
 		{
 			_shownCells.Clear();
 			_checkedCells.Clear();
-			_fullyGrown.Clear();
 			_plantCache = null;
 		}
 
@@ -72,6 +72,7 @@ namespace TD_Enhancement_Pack
 		{
 			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
 			_shownCells.Add(index);
+			_checkedCells.Remove(index);
 			_plantCache[index] = plant;
 		}
 
@@ -80,7 +81,6 @@ namespace TD_Enhancement_Pack
 			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
 			_shownCells.Remove(index);
 			_checkedCells.Remove(index);
-			_fullyGrown.Remove(index);
 			_plantCache[index] = null;
 		}
 

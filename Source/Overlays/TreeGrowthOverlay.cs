@@ -23,13 +23,15 @@ namespace TD_Enhancement_Pack
 
 		public override bool ShowCell(int index)
 		{
+			if (_checkedCells.Contains(index))
+				return false;
 			if (_shownCells.Contains(index))
 				return true;
 
-			if (_checkedCells.Contains(index))
-				return false;
-
-			return _checkedCells.Add(index) && IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
+			var valid = IsValidPlant(FindPlant(index)) && _shownCells.Add(index);
+			if (!valid)
+				_checkedCells.Add(index);
+			return valid;
 		}
 		public override Color GetCellExtraColor(int index)
 		{
@@ -39,7 +41,7 @@ namespace TD_Enhancement_Pack
 			var tree = FindPlant(index);
 			if (tree == null) return Color.magenta;//shouldn't happen
 
-			return tree.LifeStage == PlantLifeStage.Mature ? Color.white :
+			return tree.Growth > 0.99900001287460327 ? Color.white :
 				tree.HarvestableNow ? Color.green :
 				tree.HarvestableSoon ? Color.yellow :
 				Color.red;
@@ -63,6 +65,7 @@ namespace TD_Enhancement_Pack
 		{
 			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
 			_shownCells.Add(index);
+			_checkedCells.Remove(index);
 			_plantCache[index] = plant;
 		}
 
