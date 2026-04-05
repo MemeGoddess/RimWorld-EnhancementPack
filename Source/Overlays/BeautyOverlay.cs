@@ -8,43 +8,52 @@ using Verse;
 using RimWorld;
 using RimWorld.Planet;
 using HarmonyLib;
+using TD_Enhancement_Pack.Overlays;
 
 namespace TD_Enhancement_Pack
 {
 	[StaticConstructorOnStartup]
-	class BeautyOverlay : BaseOverlay
+	class BeautyOverlay : CachedOverlay<float?>
 	{
+		public static bool firstRender = false;
+		private Dictionary<float, Color> _lerpedColorGood = [];
+		private Dictionary<float, Color> _lerpedColorBad = [];
 		public BeautyOverlay() : base() { }
-
-		public override bool ShowCell(int index)
-		{
-			return BeautyAt(index) != 0;
-		}
-
-		public override Color GetCellExtraColor(int index)
-		{
-			float amount = BeautyAt(index);
-
-			bool good = amount > 0;
-			amount = amount > 0 ? amount/50 : -amount/10;
-
-			Color baseColor = good ? Color.green : Color.red;
-			baseColor.a = 0;
-
-			return good && amount > 1 ? Color.Lerp(Color.green, Color.white, amount - 1)
-				: Color.Lerp(baseColor, good ? Color.green : Color.red, amount);
-		}
-
-		public static float BeautyAt(int index)
-		{
-			return BeautyUtility.CellBeauty(Find.CurrentMap.cellIndices.IndexToCell(index), Find.CurrentMap);
-		}
 
 		private static Texture2D icon = ContentFinder<Texture2D>.Get("Heart", true);
 		public override Texture2D Icon() => icon;
 		public override bool IconEnabled() => true;//from Settings
 		public override string IconTip() => "TD.ToggleBeauty".Translate();
 
+		protected override float? GetValue(int index) => 
+			BeautyUtility.CellBeauty(Find.CurrentMap.cellIndices.IndexToCell(index), Find.CurrentMap);
+
+		protected override Color GetColor(float? item)
+		{
+			if (item == null)
+				return transparent;
+
+			var amount = item.Value;
+
+			var good = amount > 0;
+			amount = amount > 0 ? amount / 50 : -amount / 10;
+
+			if ((good ? _lerpedColorGood : _lerpedColorBad).TryGetValue(amount, out var color))
+				return color;
+
+			var baseColor = good ? Color.green : Color.red;
+			baseColor.a = 0;
+
+			color = good && amount > 1
+				? Color.Lerp(Color.green, Color.white, amount - 1)
+				: Color.Lerp(baseColor, good ? Color.green : Color.red, amount);
+			(good ? _lerpedColorGood : _lerpedColorBad)[amount] = color;
+
+			return color;
+		}
+
+		public override bool IsValid(float? item) => 
+			item != 0;
 	}
 
 	[HarmonyPatch(typeof(TerrainGrid), "DoTerrainChangedEffects")]
@@ -60,20 +69,38 @@ namespace TD_Enhancement_Pack
 	[HarmonyPatch(typeof(ThingGrid), "Register")]
 	public static class BeautyDirtierRegister
 	{
+		private static BeautyOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				if (BeautyUtility.BeautyRelevant(t.def.category))
-					BaseOverlay.SetDirty(typeof(BeautyOverlay));
+			if (!BeautyOverlay.firstRender)
+				return;
+			if (___map != Find.CurrentMap) 
+				return;
+			if (!BeautyUtility.BeautyRelevant(t.def.category)) 
+				return;
+
+			overlay ??= BaseOverlay.GetOverlay<BeautyOverlay>();
+			var index = ___map.cellIndices.CellToIndex(t.Position);
+			overlay.Register(index, BeautyUtility.CellBeauty(t.Position, Find.CurrentMap));
+			overlay.SetDirty();
 		}
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]
 	public static class BeautyDirtierDeregister
 	{
+		private static BeautyOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-			BeautyDirtierRegister.Postfix(t, ___map);
+			if (___map != Find.CurrentMap)
+				return;
+			if (!BeautyUtility.BeautyRelevant(t.def.category))
+				return;
+
+			overlay ??= BaseOverlay.GetOverlay<BeautyOverlay>();
+			var index = ___map.cellIndices.CellToIndex(t.Position);
+			overlay.Deregister(index);
+			overlay.SetDirty();
 		}
 	}
 }

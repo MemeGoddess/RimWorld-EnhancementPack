@@ -7,31 +7,16 @@ using UnityEngine;
 using Verse;
 using RimWorld;
 using HarmonyLib;
+using TD_Enhancement_Pack.Overlays;
 
 namespace TD_Enhancement_Pack
 {
 	[StaticConstructorOnStartup]
-	class PlantHarvestOverlay : BaseOverlay
+	class PlantHarvestOverlay : CachedOverlay<Plant>
 	{
+		private Dictionary<float, Color> _lerpedColor = [];
 		public PlantHarvestOverlay() : base() { }
-
-		public override bool ShowCell(int index)
-		{
-			foreach (Thing thing in Find.CurrentMap.thingGrid.ThingsListAtFast(index))
-				if (thing.def.plant?.harvestTag == "Standard")
-					return true;
-			return false;
-		}
-		public override Color GetCellExtraColor(int index)
-		{
-			Plant plant = Find.CurrentMap.thingGrid.ThingsListAtFast(index).FirstOrDefault(t => t.def.plant?.harvestTag == "Standard") as Plant;
-			if (plant == null) return Color.magenta;//shouldn't happen
-
-			return plant.LifeStage == PlantLifeStage.Mature ? Color.white :
-				Color.Lerp(Color.red, Color.green, plant.Growth);
-		}
-
-
+		
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayPlantHarvest;
 		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvest), typeof(Designator_PlantsCut) ];
 
@@ -39,37 +24,91 @@ namespace TD_Enhancement_Pack
 		public override Texture2D Icon() => icon;
 		public override bool IconEnabled() => true;
 		public override string IconTip() => "TD.TogglePlantHarveset".Translate();
+
+		public override bool IsValid(Plant plant) =>
+			plant?.def?.plant is { harvestTag: "Standard" } && plant.sown;
+
+		protected override Plant GetValue(int index) =>
+			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
+				.FirstOrDefault(t => t is Plant plant && IsValid(plant)) as Plant;
+
+		protected override Color GetColor(Plant plant)
+		{
+			if (plant == null) 
+				return Color.magenta; //shouldn't happen
+
+			if (plant.Growth > 0.99900001287460327)
+				return Color.white;
+
+			if (_lerpedColor.TryGetValue(plant.Growth, out var color))
+				return color;
+
+			color = Color.Lerp(Color.red, Color.green, plant.Growth);
+			_lerpedColor[plant.Growth] = color;
+			return color;
+		}
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]
 	public static class ThingDirtierDeregister_PlantHarvest
 	{
+		private static PlantHarvestOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				if (t is Plant)
-					BaseOverlay.SetDirty(typeof(PlantHarvestOverlay));
+			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
+			if (___map != Find.CurrentMap)
+				return;
+			if (t is not Plant plant || !overlay.IsValid(plant)) 
+				return;
+
+			overlay.Deregister(___map.cellIndices.CellToIndex(t.Position));
+			overlay.SetDirty();
+		}
+	}
+
+	[HarmonyPatch(typeof(ThingGrid), nameof(ThingGrid.Register))]
+	public static class ThingDirtierRegister_PlantHarvest
+	{
+		private static PlantHarvestOverlay overlay;
+		public static void Postfix(Thing t, Map ___map)
+		{
+			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
+			if (___map != Find.CurrentMap)
+				return;
+			if (t is not Plant plant || !overlay.IsValid(plant))
+				return;
+
+			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
+			overlay.SetDirty();
 		}
 	}
 
 	[HarmonyPatch(typeof(Plant), "PlantCollected")]
 	public static class PlantCollected_PlantHarvest
 	{
-		//public virtual void PlantCollected()
+		private static PlantHarvestOverlay overlay;
 		public static void Postfix(Plant __instance)
 		{
-			if (__instance.Map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(PlantHarvestOverlay));
+			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
+			if (__instance.Map != Find.CurrentMap)
+				return;
+
+			if (!overlay.IsValid(__instance))
+				return;
+
+			overlay.Deregister(__instance.Map.cellIndices.CellToIndex(__instance.Position));
+			overlay.SetDirty();
 		}
 	}
 
-	[HarmonyPatch(typeof(TickList), "Tick")]
+	[HarmonyPatch(typeof(Plant), "TickLong")]
 	public static class TickGrow_PlantHarvest
 	{
-		public static void Postfix(TickerType ___tickType)
+		private static PlantHarvestOverlay overlay;
+		public static void Postfix()
 		{
-			if (___tickType == TickerType.Long)
-				BaseOverlay.SetDirty(typeof(PlantHarvestOverlay));
+			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
+			overlay.SetDirty();
 		}
 	}
 }

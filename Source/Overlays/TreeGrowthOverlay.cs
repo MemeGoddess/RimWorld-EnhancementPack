@@ -8,66 +8,96 @@ using Verse;
 using RimWorld;
 using RimWorld.Planet;
 using HarmonyLib;
+using TD_Enhancement_Pack.Overlays;
+using KTrie;
 
 namespace TD_Enhancement_Pack
 {
 	[StaticConstructorOnStartup]
-	class TreeGrowthOverlay : BaseOverlay
+	class TreeGrowthOverlay : CachedOverlay<Plant>
 	{
 		public TreeGrowthOverlay() : base() { }
-
-		public override bool ShowCell(int index)
+		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
+		
+		protected override Plant GetValue(int index) =>
+			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
+				.FirstOrDefault(t => t is Plant plant && IsValid(plant)) as Plant;
+		
+		protected override Color GetColor(Plant tree)
 		{
-			foreach (Thing thing in Find.CurrentMap.thingGrid.ThingsListAtFast(index))
-				if (thing.def.plant is PlantProperties props && props.harvestTag == "Wood" && props.Harvestable)
-					return true;
-			return false;
-		}
-		public override Color GetCellExtraColor(int index)
-		{
-			Plant tree = Find.CurrentMap.thingGrid.ThingsListAtFast(index).FirstOrDefault(t => t.def.plant?.harvestTag == "Wood") as Plant;
-			if (tree == null) return Color.magenta;//shouldn't happen
+			if (tree == null) return Color.magenta; //shouldn't happen
 
-			return tree.LifeStage == PlantLifeStage.Mature ? Color.white :
+			return tree.Growth > 0.99900001287460327 ? Color.white :
 				tree.HarvestableNow ? Color.green :
 				tree.HarvestableSoon ? Color.yellow :
 				Color.red;
 		}
-
-
-		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
-		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
+		
+		public override bool IsValid(Plant plant) =>
+			plant?.def.plant is { harvestTag: "Wood", Harvestable: true };
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]
 	public static class ThingDirtierDeregister_TreeGrowth
 	{
+		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				if (t is Plant)
-					BaseOverlay.SetDirty(typeof(TreeGrowthOverlay));
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			if (___map != Find.CurrentMap)
+				return;
+			if (t is not Plant plant || !overlay.IsValid(plant))
+				return;
+
+			overlay.Deregister(___map.cellIndices.CellToIndex(t.Position));
+			overlay.SetDirty();
+		}
+	}
+
+	[HarmonyPatch(typeof(ThingGrid), "Register")]
+	public static class ThingDirtierRegister_TreeGrowth
+	{
+		private static TreeGrowthOverlay overlay;
+		public static void Postfix(Thing t, Map ___map)
+		{
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			if (___map != Find.CurrentMap)
+				return;
+			if (t is not Plant plant || !overlay.IsValid(plant))
+				return;
+
+			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
+			overlay.SetDirty();
 		}
 	}
 
 	[HarmonyPatch(typeof(Plant), "PlantCollected")]
 	public static class PlantCollected
 	{
-		//public virtual void PlantCollected()
+		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Plant __instance)
 		{
-			if (__instance.Map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(TreeGrowthOverlay));
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			if (__instance.Map != Find.CurrentMap)
+				return;
+
+			if (!overlay.IsValid(__instance))
+				return;
+
+			overlay.Deregister(__instance.Map.cellIndices.CellToIndex(__instance.Position));
+			overlay.SetDirty();
 		}
 	}
 
-	[HarmonyPatch(typeof(TickList), "Tick")]
+	[HarmonyPatch(typeof(Plant), "TickLong")]
 	public static class TickGrow
 	{
-		public static void Postfix(TickerType ___tickType)
+		private static TreeGrowthOverlay overlay;
+		public static void Postfix()
 		{
-			if (___tickType == TickerType.Long)
-				BaseOverlay.SetDirty(typeof(TreeGrowthOverlay));
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			overlay.SetDirty();
 		}
 	}
 }
