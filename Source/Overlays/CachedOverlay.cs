@@ -101,6 +101,6 @@ namespace TD_Enhancement_Pack.Overlays
 		protected abstract T GetValue(int index);
 	  protected abstract Color GetColor(T item);
 
-		protected abstract bool IsValid(T item);
+		public abstract bool IsValid(T item);
   }
 }

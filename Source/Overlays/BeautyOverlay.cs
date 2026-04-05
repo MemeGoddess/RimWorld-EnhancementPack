@@ -52,7 +52,7 @@ namespace TD_Enhancement_Pack
 			return color;
 		}
 
-		protected override bool IsValid(float? item) => 
+		public override bool IsValid(float? item) => 
 			item != 0;
 	}
 

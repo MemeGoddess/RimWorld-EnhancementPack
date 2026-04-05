@@ -8,106 +8,34 @@ using Verse;
 using RimWorld;
 using RimWorld.Planet;
 using HarmonyLib;
+using TD_Enhancement_Pack.Overlays;
+using KTrie;
 
 namespace TD_Enhancement_Pack
 {
 	[StaticConstructorOnStartup]
-	class TreeGrowthOverlay : BaseOverlay
+	class TreeGrowthOverlay : CachedOverlay<Plant>
 	{
-		private bool[] _shownCells;
-		private bool[] _checkedCells;
-		private Dictionary<float, Color> _lerpedColor = [];
-		private Plant[] _plantCache;
 		public TreeGrowthOverlay() : base() { }
-
-		public override bool ShowCell(int index)
+		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
+		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
+		
+		protected override Plant GetValue(int index) =>
+			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
+				.FirstOrDefault(t => t is Plant plant && IsValid(plant)) as Plant;
+		
+		protected override Color GetColor(Plant tree)
 		{
-			_checkedCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-			if (_checkedCells[index])
-				return false;
-			_shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-			if (_shownCells[index])
-				return true;
-
-			var valid = IsValidPlant(FindPlant(index));
-			if (valid)
-				_shownCells[index] = true;
-			else
-				_checkedCells[index] = true;
-			return valid;
-		}
-		public override Color GetCellExtraColor(int index)
-		{
-			if (!_shownCells[index])
-				return Color.white.ToTransparent(0);
-
-			var tree = FindPlant(index);
-			if (tree == null) return Color.magenta;//shouldn't happen
+			if (tree == null) return Color.magenta; //shouldn't happen
 
 			return tree.Growth > 0.99900001287460327 ? Color.white :
 				tree.HarvestableNow ? Color.green :
 				tree.HarvestableSoon ? Color.yellow :
 				Color.red;
 		}
-
-		public static bool IsValidPlant(Plant plant) =>
+		
+		public override bool IsValid(Plant plant) =>
 			plant?.def.plant is { harvestTag: "Wood", Harvestable: true };
-
-		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
-		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
-
-		public override void Clear()
-		{
-
-			_shownCells = null;
-			_checkedCells = null;
-			_plantCache = null;
-		}
-
-		public void Register(int index, Plant plant)
-		{
-			var numCells = Find.CurrentMap.cellIndices.NumGridCells;
-			_shownCells ??= new bool[numCells];
-			_checkedCells ??= new bool[numCells];
-			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			_shownCells[index] = true;
-			_checkedCells[index] = false;
-			_plantCache[index] = plant;
-		}
-
-		public void Deregister(int index)
-		{
-			var numCells = Find.CurrentMap.cellIndices.NumGridCells;
-			_shownCells ??= new bool[numCells];
-			_checkedCells ??= new bool[numCells];
-			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			_shownCells[index] = false;
-			_checkedCells[index] = false;
-			_plantCache[index] = null;
-		}
-
-		private Plant FindPlant(int index)
-		{
-			_plantCache ??= new Plant[Find.CurrentMap.cellIndices.NumGridCells];
-			var plant = _plantCache[index];
-			if (plant != null)
-				return plant;
-
-			plant = Find.CurrentMap.thingGrid.ThingsListAtFast(index)
-				.FirstOrDefault(t => t is Plant plant &&  IsValidPlant(plant)) as Plant;
-
-
-			if (plant == null)
-			{
-				_shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-				_shownCells[index] = false;
-				return null;
-			}
-
-			_plantCache[index] = plant;
-
-			return plant;
-		}
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]
@@ -116,12 +44,12 @@ namespace TD_Enhancement_Pack
 		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-			if (___map != Find.CurrentMap) 
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
+			if (___map != Find.CurrentMap)
 				return;
-			if (t is not Plant plant || !TreeGrowthOverlay.IsValidPlant(plant))
+			if (t is not Plant plant || !overlay.IsValid(plant))
 				return;
 
-			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
 			overlay.Deregister(___map.cellIndices.CellToIndex(t.Position));
 			overlay.SetDirty();
 		}
@@ -133,13 +61,12 @@ namespace TD_Enhancement_Pack
 		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Thing t, Map ___map)
 		{
-
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
 			if (___map != Find.CurrentMap)
 				return;
-			if (t is not Plant plant || !TreeGrowthOverlay.IsValidPlant(plant))
+			if (t is not Plant plant || !overlay.IsValid(plant))
 				return;
 
-			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
 			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
 			overlay.SetDirty();
 		}
@@ -151,13 +78,13 @@ namespace TD_Enhancement_Pack
 		private static TreeGrowthOverlay overlay;
 		public static void Postfix(Plant __instance)
 		{
+			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
 			if (__instance.Map != Find.CurrentMap)
 				return;
 
-			if (!PlantHarvestOverlay.IsValidPlant(__instance))
+			if (!overlay.IsValid(__instance))
 				return;
 
-			overlay ??= BaseOverlay.GetOverlay<TreeGrowthOverlay>();
 			overlay.Deregister(__instance.Map.cellIndices.CellToIndex(__instance.Position));
 			overlay.SetDirty();
 		}
