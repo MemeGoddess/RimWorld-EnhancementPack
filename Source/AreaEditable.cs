@@ -29,6 +29,8 @@ namespace TD_Enhancement_Pack
 		public static readonly Texture2D ShowMap = ContentFinder<Texture2D>.Get("UI/Commands/ShowMap");
 		public static readonly Texture2D ViewPlanet = ContentFinder<Texture2D>.Get("ViewPlanet");
 
+		public static readonly Texture2D UnderShadowTex = ContentFinder<Texture2D>.Get("UI/Misc/ScreenCornerShadow");
+
 	}
 
 	[HarmonyPatch(typeof(Dialog_ManageAreas), "InitialSize", MethodType.Getter)]

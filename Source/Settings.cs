@@ -6,6 +6,7 @@ using RimWorld;
 using TD.Utilities;
 using System.Linq;
 using UnityEngine.UIElements;
+using TD_Enhancement_Pack.Utilities;
 
 namespace TD_Enhancement_Pack
 {
@@ -80,6 +81,8 @@ namespace TD_Enhancement_Pack
 		public bool ctrlShiftQueueFront = true;
 		public bool selectedItemsZoomButton = true;
 		public bool mouseoverInfoTopRight = false;
+		public MouseoverInfoLocation? mouseoverInfoLocation = null;
+		public bool mouseLocationDoFade = true;
 		public bool stopForcedSlowdown = true;
 
 		public bool alertDeteriorating = true;
@@ -293,7 +296,10 @@ namespace TD_Enhancement_Pack
 			options.CheckboxLabeled("TD.SettingCtrlQueueFront".Translate(), ref ctrlShiftQueueFront, "TD.SettingCtrlQueueFrontDesc".Translate());
 			options.CheckboxLabeled("TD.SettingJumpToSelectedItems".Translate(), ref selectedItemsZoomButton);
 			options.Gap();
-			options.CheckboxLabeled("TD.SettingTopRightMouseover".Translate(), ref mouseoverInfoTopRight, "TD.SettingTopRightMouseoverDesc".Translate());
+			//options.CheckboxLabeled("TD.SettingTopRightMouseover".Translate(), ref mouseoverInfoTopRight, "TD.SettingTopRightMouseoverDesc".Translate());
+			DoMouseTileLocationSetting(options);
+			options.CheckboxLabeled("TD.SettingFadeMouseover".Translate(), ref mouseLocationDoFade);
+
 			options.CheckboxLabeled("TD.SettingStopForcedSlowdown".Translate(), ref stopForcedSlowdown);
 			options.CheckboxLabeled("TD.SettingTradeClose".Translate(), ref changeSpeedAfterTrader);
 			options.SliderLabeled("TD.SettingTradeCloseSpeed".Translate(), ref afterTraderSpeed, "{0}x", 0, 4);
@@ -345,6 +351,25 @@ namespace TD_Enhancement_Pack
 
 			options.EndScrollView(ref viewRect);
 			scrollViewHeight = viewRect.height;
+		}
+
+		private void DoMouseTileLocationSetting(Listing_Standard options)
+		{
+			if (options.ButtonTextLabeled("TD.SettingMouseOverLocation".Translate(), mouseoverInfoLocation switch
+			    {
+				    MouseoverInfoLocation.BottomLeft => "TD.SettingMouseOverLocationOptionBottomLeft".Translate(),
+				    MouseoverInfoLocation.TopRight => "TD.SettingMouseOverLocationOptionTopRight".Translate(),
+				    MouseoverInfoLocation.Mouse => "TD.SettingMouseOverLocationOptionMouse".Translate(),
+				    null => "TD.SettingMouseOverLocationOptionBottomLeft".Translate(),
+				    _ => throw new ArgumentOutOfRangeException()
+			    }))
+			{
+				Find.WindowStack.Add(new FloatMenu([
+					new("TD.SettingMouseOverLocationOptionBottomLeft".Translate(), () => mouseoverInfoLocation = MouseoverInfoLocation.BottomLeft),
+					new("TD.SettingMouseOverLocationOptionTopRight".Translate(), () => mouseoverInfoLocation = MouseoverInfoLocation.TopRight),
+					new("TD.SettingMouseOverLocationOptionMouse".Translate(), () => mouseoverInfoLocation = MouseoverInfoLocation.Mouse),
+				]));
+			}
 		}
 
 		private float TotalHeight(List<ToggleButton> buttons)
@@ -492,7 +517,18 @@ namespace TD_Enhancement_Pack
 			Scribe_Values.Look(ref pawnTableClickSelect, "pawnTableClickSelect", false);
 			Scribe_Values.Look(ref ctrlShiftQueueFront, "ctrlShiftQueueFront", true);
 			Scribe_Values.Look(ref selectedItemsZoomButton, "selectedItemsZoomButton", true);
-			Scribe_Values.Look(ref mouseoverInfoTopRight, "mouseoverInfoTopRight", false);
+
+			Scribe_Values.Look(ref mouseoverInfoLocation, "mouseoverInfoLocation");
+			Scribe_Values.Look(ref mouseLocationDoFade, "mouseLocationDoFade", true);
+
+			if(mouseoverInfoLocation == null)
+			{
+				Log.Message("Running settings Migration for Mouseover Info location");
+				Scribe_Values.Look(ref mouseoverInfoTopRight, "mouseoverInfoTopRight", false);
+				mouseoverInfoLocation =
+					mouseoverInfoTopRight ? MouseoverInfoLocation.TopRight : MouseoverInfoLocation.BottomLeft;
+			}
+
 			Scribe_Values.Look(ref stopForcedSlowdown, "stopForcedSlowdown", true);
 
 			Scribe_Values.Look(ref alertDeteriorating, "alertDeteriorating", true);
