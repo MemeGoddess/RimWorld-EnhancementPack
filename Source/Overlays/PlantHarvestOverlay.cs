@@ -75,7 +75,7 @@ namespace TD_Enhancement_Pack
 			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
 			if (___map != Find.CurrentMap)
 				return;
-			if (t is not Plant plant || !overlay.IsValid(plant))
+			if (t is not Plant plant || plant.def.plant is not { harvestTag: "Standard" })
 				return;
 
 			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
