@@ -26,11 +26,19 @@ namespace TD_Enhancement_Pack.Overlays
 		  if (_shownCells[index])
 			  return true;
 
-		  var valid = IsValid(GetAndCache(index));
+		  var item = GetAndCache(index);
+
+			var valid = IsValid(item);
 			if(valid)
+			{
 				_shownCells[index] = true;
+			}
 			else
+			{
 				_checkedCells[index] = true;
+				if (item != null)
+					_cache[index] = default;
+			}
 
 			return valid;
 	  }
@@ -63,7 +71,6 @@ namespace TD_Enhancement_Pack.Overlays
 		  _shownCells ??= new bool[numCells];
 		  _checkedCells ??= new bool[numCells];
 		  _cache ??= new T[Find.CurrentMap.cellIndices.NumGridCells];
-		  _shownCells[index] = true;
 		  _checkedCells[index] = false;
 		  _cache[index] = item;
 	  }

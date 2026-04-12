@@ -26,7 +26,7 @@ namespace TD_Enhancement_Pack
 		public override string IconTip() => "TD.TogglePlantHarveset".Translate();
 
 		public override bool IsValid(Plant plant) =>
-			plant?.def?.plant is { harvestTag: "Standard" } && plant.sown;
+			plant?.def?.plant is { harvestTag: "Standard" };
 
 		protected override Plant GetValue(int index) =>
 			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
@@ -75,7 +75,7 @@ namespace TD_Enhancement_Pack
 			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
 			if (___map != Find.CurrentMap)
 				return;
-			if (t is not Plant plant || plant.def.plant is not { harvestTag: "Standard" })
+			if (t is not Plant plant || overlay.IsValid(plant))
 				return;
 
 			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
