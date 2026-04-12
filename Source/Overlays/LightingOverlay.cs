@@ -16,18 +16,23 @@ namespace TD_Enhancement_Pack
 	{
 		public float skyGlow;
 
+		private bool[] _glowerCells;
+		private bool[] _checkedGlowerCells;
+
 		public LightingOverlay() : base() { }
 
 		public override bool ShowCell(int index)
 		{
 			Building edifice = Find.CurrentMap.edificeGrid[index];
 			return edifice?.def.passability != Traversability.Impassable &&
-				Find.CurrentMap.roofGrid.GetCellBool(index) || LightingAt(index) > skyGlow || GlowerColorAt(index) != null;
+				Find.CurrentMap.roofGrid.GetCellBool(index) || LightingAt(index) > skyGlow || GlowerAt(index);
 		}
 
 		public override Color GetCellExtraColor(int index)
 		{
-			return GlowerColorAt(index) ?? Color.Lerp(Color.red, Color.green, LightingAt(index));
+			return GlowerAt(index) 
+				? Color.white 
+				: Color.Lerp(Color.red, Color.green, LightingAt(index));
 		}
 
 		public float LightingAt(int index)
@@ -35,21 +40,39 @@ namespace TD_Enhancement_Pack
 			return Find.CurrentMap.glowGrid.GroundGlowAt(Find.CurrentMap.cellIndices.IndexToCell(index));
 		}
 
-		public Color? GlowerColorAt(int index)
+		public bool GlowerAt(int index)
 		{
-			foreach(Thing thing in Find.CurrentMap.thingGrid.ThingsListAtFast(index))
-				if(thing.TryGetComp<CompGlower>() is CompGlower compGlower)// && compGlower.ShouldBeLitNow)//ShouldBeLitNow private :/
-					return Color.white;
-			return null;
+			_checkedGlowerCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_checkedGlowerCells[index])
+				return false;
+			_glowerCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_glowerCells[index])
+				return true;
+
+			foreach(var thing in Find.CurrentMap.thingGrid.ThingsListAtFast(index))
+				if(thing.TryGetComp<CompGlower>() is not null)
+				{
+					_glowerCells[index] = true;
+					return true;
+				}
+
+			_checkedGlowerCells[index] = true;
+			return false;
 		}
 
 		public void SetDirtySky(float newSky)
 		{
-			if(skyGlow != newSky)
-			{
-				skyGlow = newSky;
-				SetDirty();
-			}
+			if (skyGlow == newSky) 
+				return;
+
+			skyGlow = newSky;
+			SetDirty();
+		}
+
+		public override void Clear()
+		{
+			_checkedGlowerCells = null;
+			_glowerCells = null;
 		}
 
 		private static Texture2D icon = ContentFinder<Texture2D>.Get("LampSun", true);
@@ -65,15 +88,27 @@ namespace TD_Enhancement_Pack
 				desBuild.PlacingDef is ThingDef def &&
 				def.HasComp(typeof(CompGlower));
 		}
+
+		public void DirtyCell(int index)
+		{
+			_checkedGlowerCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			_glowerCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			_glowerCells[index] = false;
+			_checkedGlowerCells[index] = false;
+		}
 	}
 
 	[HarmonyPatch(typeof(GlowGrid), nameof(GlowGrid.DirtyCell))]
 	static class GlowGridDirty_Patch
 	{
-		public static void Postfix(Map ___map)
+		private static LightingOverlay overlay;
+		public static void Postfix(IntVec3 cell, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(LightingOverlay));
+			if (___map != Find.CurrentMap) 
+				return;
+
+			overlay ??= BaseOverlay.GetOverlay<LightingOverlay>();
+			overlay.DirtyCell(___map.cellIndices.CellToIndex(cell));
 		}
 	}
 
