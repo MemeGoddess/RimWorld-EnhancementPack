@@ -222,7 +222,8 @@ namespace TD_Enhancement_Pack
 
 		static bool Prefix(ref bool __result)
 		{
-			if (!Mod.settings.mouseoverInfoTopRight) return true;
+			if (Mod.settings.mouseoverInfoLocation == MouseoverInfoLocation.BottomLeft) 
+				return true;
 
 			__result = true;
 			return false;
