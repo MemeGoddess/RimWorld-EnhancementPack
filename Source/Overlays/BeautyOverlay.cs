@@ -28,7 +28,7 @@ namespace TD_Enhancement_Pack
 		protected override float? GetValue(int index) => 
 			BeautyUtility.CellBeauty(Find.CurrentMap.cellIndices.IndexToCell(index), Find.CurrentMap);
 
-		protected override Color GetColor(float? item)
+		protected override Color GetColor(float? item, int index)
 		{
 			if (item == null)
 				return transparent;

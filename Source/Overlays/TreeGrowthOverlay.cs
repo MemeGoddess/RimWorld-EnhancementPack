@@ -16,6 +16,7 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	class TreeGrowthOverlay : CachedOverlay<Plant>
 	{
+		private byte[] _fullyGrownCache;
 		public TreeGrowthOverlay() : base() { }
 		public override bool ShouldAutoDraw() => Mod.settings.autoOverlayTreeGrowth;
 		public override IEnumerable<Type> AutoDesignator() => [ typeof(Designator_PlantsHarvestWood), typeof(Designator_PlantsCut) ];
@@ -24,18 +25,40 @@ namespace TD_Enhancement_Pack
 			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
 				.FirstOrDefault(t => t is Plant plant && IsValid(plant)) as Plant;
 		
-		protected override Color GetColor(Plant tree)
+		protected override Color GetColor(Plant tree, int index)
 		{
 			if (tree == null) return Color.magenta; //shouldn't happen
 
-			return tree.Growth > 0.99900001287460327 ? Color.white :
-				tree.HarvestableNow ? Color.green :
-				tree.HarvestableSoon ? Color.yellow :
-				Color.red;
+			_fullyGrownCache ??= new byte[Find.CurrentMap.cellIndices.NumGridCells];
+
+			switch (_fullyGrownCache[index])
+			{
+				case 0:
+					_fullyGrownCache[index] = (byte)(tree.Growth > 0.99900001287460327 ? 2 : 1);
+					return _fullyGrownCache[index] == 2 ? Color.white :
+						tree.HarvestableNow ? Color.green :
+						tree.HarvestableSoon ? Color.yellow :
+						Color.red;
+				case 1:
+					return tree.HarvestableNow ? Color.green :
+						tree.HarvestableSoon ? Color.yellow :
+						Color.red;
+				case 2:
+					return Color.white;
+				default:
+					throw new ArgumentOutOfRangeException("_fullyGrownCache[index]");
+			}
 		}
 		
 		public override bool IsValid(Plant plant) =>
 			plant?.def.plant is { harvestTag: "Wood", Harvestable: true };
+
+		public override void Deregister(int index)
+		{
+			base.Deregister(index);
+			if(_fullyGrownCache != null)
+				_fullyGrownCache[index] = 0;
+		}
 	}
 
 	[HarmonyPatch(typeof(ThingGrid), "Deregister")]

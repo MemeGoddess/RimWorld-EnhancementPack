@@ -32,7 +32,7 @@ namespace TD_Enhancement_Pack
 			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
 				.FirstOrDefault(t => t is Plant plant && IsValid(plant)) as Plant;
 
-		protected override Color GetColor(Plant plant)
+		protected override Color GetColor(Plant plant, int index)
 		{
 			if (plant == null) 
 				return Color.magenta; //shouldn't happen

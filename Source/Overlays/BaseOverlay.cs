@@ -15,9 +15,8 @@ namespace TD_Enhancement_Pack
 	{
 		public static Dictionary<Type, BaseOverlay> overlays = new();
 		public static List<Type> overlayTypes = [.. typeof(BaseOverlay).AllSubclassesNonAbstract()];
-		private static bool[] _cellFog;
-		private static bool[] _checkedFogCells;
-
+		// 0 = not checked, 1 = not fogged, 2 = fogged
+		private static byte[] _fogCache;
 		protected float defaultOpacity;
 
 		public static BaseOverlay GetOverlay(Type type)
@@ -43,8 +42,7 @@ namespace TD_Enhancement_Pack
 
 		public static void ClearFogCache()
 		{
-			_cellFog = null;
-			_checkedFogCells = null;
+			_fogCache = null;
 		}
 
 		public BaseOverlay() : this(0.33F) { }
@@ -72,8 +70,7 @@ namespace TD_Enhancement_Pack
 
 		public static void ResetAll()
 		{
-			_checkedFogCells = null;
-			_cellFog = null;
+			_fogCache = null;
 			foreach (BaseOverlay overlay in overlays.Values)
 				if(overlay.drawer != null)
 				{
@@ -143,21 +140,20 @@ namespace TD_Enhancement_Pack
 
 		private bool Fogged(int index)
 		{
-			_checkedFogCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-			if (_checkedFogCells[index])
-				return false;
+			var cache = _fogCache;
+			if (cache == null)
+			{
+				cache = new byte[Find.CurrentMap.cellIndices.NumGridCells];
+				_fogCache = cache;
+			}
 
-			_cellFog ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-			if (_cellFog[index])
-				return true;
+			var cached = cache[index];
+			if (cached != 0)
+				return cached == 2;
 
-			var fog = Find.CurrentMap.fogGrid.IsFogged(index);
-			if (fog)
-				_cellFog[index] = true;
-			else
-				_checkedFogCells[index] = true;
-
-			return fog;
+			var fogged = Find.CurrentMap.fogGrid.IsFogged(index);
+			cache[index] = fogged ? (byte)2 : (byte)1;
+			return fogged;
 		}
 	}
 

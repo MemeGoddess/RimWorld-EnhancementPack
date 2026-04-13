@@ -55,7 +55,7 @@ namespace TD_Enhancement_Pack.Overlays
 			  return transparent;
 		  }
 
-		  return GetColor(item);
+		  return GetColor(item, index);
 	  }
 
 	  public override void Clear()
@@ -65,7 +65,7 @@ namespace TD_Enhancement_Pack.Overlays
 		  _cache = null;
 	  }
 
-	  public void Register(int index, T item)
+	  public virtual void Register(int index, T item)
 	  {
 		  var numCells = Find.CurrentMap.cellIndices.NumGridCells;
 		  _shownCells ??= new bool[numCells];
@@ -75,7 +75,7 @@ namespace TD_Enhancement_Pack.Overlays
 		  _cache[index] = item;
 	  }
 
-	  public void Deregister(int index)
+	  public virtual void Deregister(int index)
 	  {
 		  var numCells = Find.CurrentMap.cellIndices.NumGridCells;
 		  _shownCells ??= new bool[numCells];
@@ -106,7 +106,7 @@ namespace TD_Enhancement_Pack.Overlays
 
 		[CanBeNull]
 		protected abstract T GetValue(int index);
-	  protected abstract Color GetColor(T item);
+	  protected abstract Color GetColor(T item, int index);
 
 		public abstract bool IsValid(T item);
   }
