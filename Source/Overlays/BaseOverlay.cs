@@ -13,7 +13,12 @@ namespace TD_Enhancement_Pack
 	[StaticConstructorOnStartup]
 	abstract class BaseOverlay : ICellBoolGiver
 	{
-		public static Dictionary<Type, BaseOverlay> overlays = new Dictionary<Type, BaseOverlay>();
+		public static Dictionary<Type, BaseOverlay> overlays = new();
+		public static List<Type> overlayTypes = [.. typeof(BaseOverlay).AllSubclassesNonAbstract()];
+		private static bool[] _cellFog;
+		private static bool[] _checkedFogCells;
+
+		protected float defaultOpacity;
 
 		public static BaseOverlay GetOverlay(Type type)
 		{
@@ -30,15 +35,17 @@ namespace TD_Enhancement_Pack
 			return (T)GetOverlay(typeof(T));
 		}
 
-		public static List<Type> overlayTypes = typeof(BaseOverlay).AllSubclassesNonAbstract().ToList();
 		public static IEnumerable<BaseOverlay> AllOverlays()
 		{
 			foreach (Type subType in overlayTypes)
 				yield return BaseOverlay.GetOverlay(subType);
 		}
 
-		protected float defaultOpacity;
-
+		public static void ClearFogCache()
+		{
+			_cellFog = null;
+			_checkedFogCells = null;
+		}
 
 		public BaseOverlay() : this(0.33F) { }
 		public BaseOverlay(float opacity)
@@ -65,6 +72,8 @@ namespace TD_Enhancement_Pack
 
 		public static void ResetAll()
 		{
+			_checkedFogCells = null;
+			_cellFog = null;
 			foreach (BaseOverlay overlay in overlays.Values)
 				if(overlay.drawer != null)
 				{
@@ -75,7 +84,7 @@ namespace TD_Enhancement_Pack
 
 		public bool GetCellBool(int index)
 		{
-			return !Find.CurrentMap.fogGrid.IsFogged(index) && ShowCell(index);
+			return !Fogged(index) && ShowCell(index);
 		}
 		public virtual bool ShowCell(int index) => true;
 		public abstract Color GetCellExtraColor(int index);
@@ -131,6 +140,25 @@ namespace TD_Enhancement_Pack
 		public virtual Texture2D Icon() => null;
 		public virtual bool IconEnabled() => false;//from Settings
 		public virtual string IconTip() => "";
+
+		private bool Fogged(int index)
+		{
+			_checkedFogCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_checkedFogCells[index])
+				return false;
+
+			_cellFog ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
+			if (_cellFog[index])
+				return true;
+
+			var fog = Find.CurrentMap.fogGrid.IsFogged(index);
+			if (fog)
+				_cellFog[index] = true;
+			else
+				_checkedFogCells[index] = true;
+
+			return fog;
+		}
 	}
 
 	[HarmonyPatch(typeof(Game), "CurrentMap", MethodType.Setter)]
@@ -179,6 +207,16 @@ namespace TD_Enhancement_Pack
 					else BaseOverlay.toggleShow.Remove(overlayType);
 				}
 			}
+		}
+	}
+
+	[HarmonyPatch(typeof(FogGrid), nameof(FogGrid.Unfog))]
+	[HarmonyPatch(typeof(FogGrid), nameof(FogGrid.Refog))]
+	public static class FogGrid_Unfog
+	{
+		public static void Postfix()
+		{
+			BaseOverlay.ClearFogCache();
 		}
 	}
 }
