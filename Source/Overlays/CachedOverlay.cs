@@ -11,8 +11,8 @@ namespace TD_Enhancement_Pack.Overlays
 {
 	abstract class CachedOverlay<T> : BaseOverlay
   {
-	  private bool[] _shownCells;
-	  private bool[] _checkedCells;
+	  protected bool[] _shownCells;
+	  protected bool[] _checkedCells;
 	  private T[] _cache;
 
 	  protected static Color transparent = Color.white.ToTransparent(0);
@@ -28,7 +28,7 @@ namespace TD_Enhancement_Pack.Overlays
 
 		  var item = GetAndCache(index);
 
-			var valid = IsValid(item);
+			var valid = IsValid(item, index);
 			if(valid)
 			{
 				_shownCells[index] = true;
@@ -108,6 +108,6 @@ namespace TD_Enhancement_Pack.Overlays
 		protected abstract T GetValue(int index);
 	  protected abstract Color GetColor(T item, int index);
 
-		public abstract bool IsValid(T item);
+		public abstract bool IsValid(T item, int index);
   }
 }

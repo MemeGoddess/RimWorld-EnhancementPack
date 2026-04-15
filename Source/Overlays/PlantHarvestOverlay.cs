@@ -25,12 +25,12 @@ namespace TD_Enhancement_Pack
 		public override bool IconEnabled() => true;
 		public override string IconTip() => "TD.TogglePlantHarveset".Translate();
 
-		public override bool IsValid(Plant plant) =>
+		public override bool IsValid(Plant plant, int index) =>
 			plant?.def?.plant is { harvestTag: "Standard" };
 
 		protected override Plant GetValue(int index) =>
 			Find.CurrentMap.thingGrid.ThingsListAtFast(index)
-				.FirstOrDefault(t => t is Plant plant && IsValid(plant)) as Plant;
+				.FirstOrDefault(t => t is Plant plant && IsValid(plant, index)) as Plant;
 
 		protected override Color GetColor(Plant plant, int index)
 		{
@@ -58,10 +58,12 @@ namespace TD_Enhancement_Pack
 			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
 			if (___map != Find.CurrentMap)
 				return;
-			if (t is not Plant plant || !overlay.IsValid(plant)) 
+
+			var index = ___map.cellIndices.CellToIndex(t.Position);
+			if (t is not Plant plant || !overlay.IsValid(plant, index)) 
 				return;
 
-			overlay.Deregister(___map.cellIndices.CellToIndex(t.Position));
+			overlay.Deregister(index);
 			overlay.SetDirty();
 		}
 	}
@@ -75,10 +77,12 @@ namespace TD_Enhancement_Pack
 			overlay ??= BaseOverlay.GetOverlay<PlantHarvestOverlay>();
 			if (___map != Find.CurrentMap)
 				return;
-			if (t is not Plant plant || overlay.IsValid(plant))
+
+			var index = ___map.cellIndices.CellToIndex(t.Position);
+			if (t is not Plant plant || overlay.IsValid(plant, index))
 				return;
 
-			overlay.Register(___map.cellIndices.CellToIndex(t.Position), plant);
+			overlay.Register(index, plant);
 			overlay.SetDirty();
 		}
 	}
@@ -93,7 +97,8 @@ namespace TD_Enhancement_Pack
 			if (__instance.Map != Find.CurrentMap)
 				return;
 
-			if (!overlay.IsValid(__instance))
+			var index = __instance.Map.cellIndices.CellToIndex(__instance.Position);
+			if (!overlay.IsValid(__instance, index))
 				return;
 
 			overlay.Deregister(__instance.Map.cellIndices.CellToIndex(__instance.Position));

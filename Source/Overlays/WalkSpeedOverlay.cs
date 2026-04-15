@@ -8,67 +8,119 @@ using Verse;
 using RimWorld;
 using RimWorld.Planet;
 using HarmonyLib;
+using TD_Enhancement_Pack.Overlays;
 
 namespace TD_Enhancement_Pack
 {
 	[StaticConstructorOnStartup]
-	class WalkSpeedOverlay : BaseOverlay
+	class WalkSpeedOverlay : CachedOverlay<TerrainDef>
 	{
-		public WalkSpeedOverlay() : base() { }
+		private static Color?[] colorCache;
 
-		public override bool ShowCell(int index)
+		public WalkSpeedOverlay() : base()
 		{
-			Building edifice = Find.CurrentMap.edificeGrid[index];
-			return edifice?.def.passability != Traversability.Impassable;
+			var terrains = DefDatabase<TerrainDef>.AllDefsListForReading;
+
+			var max = terrains.Max(x => x.pathCost);
+			colorCache = new Color?[max];
 		}
 
-		public override Color GetCellExtraColor(int index)
+		protected override TerrainDef GetValue(int index)
 		{
-			float f = WalkSpeedAt(index);
-			return f < 1 ? Color.Lerp(Color.red, Color.green, f * 0.75f)
+			return Find.CurrentMap.terrainGrid.TerrainAt(index);
+		}
+
+		protected override Color GetColor(TerrainDef item, int index)
+		{
+			var pathCost = item.pathCost;
+			var color = colorCache[pathCost];
+			if(color != null)
+				return color.Value;
+
+			var f = 13f / (pathCost + 13f);
+			color = f < 1 ? Color.Lerp(Color.red, Color.green, f * 0.75f)
 				: Color.Lerp(Color.green, Color.white, f - 1);
+			colorCache[pathCost] = color;
+			return color.Value;
 		}
-
-		public static float WalkSpeedAt(int index)
-		{
-			TerrainDef terrain = Find.CurrentMap.terrainGrid.TerrainAt(index);
-			//private string SpeedPercentString(float extraPathTicks)
-			return 13f / (terrain.pathCost + 13f);
-		}
+		
+		public override bool IsValid(TerrainDef item, int index) =>
+			Find.CurrentMap.edificeGrid[index]?.def.passability != Traversability.Impassable;
 
 		private static Texture2D icon = ContentFinder<Texture2D>.Get("Footprint", true);
 		public override Texture2D Icon() => icon;
 		public override bool IconEnabled() => true;//from Settings
 		public override string IconTip() => "TD.ToggleWalkSpeed".Translate();
+
+		public override void Deregister(int index)
+		{
+			base.Deregister(index);
+
+			if (Find.CurrentMap.edificeGrid[index]?.def.passability == Traversability.Impassable) 
+				_checkedCells[index] = true;
+		}
 	}
 
 	[HarmonyPatch(typeof(TerrainGrid), "DoTerrainChangedEffects")]
 	static class DoTerrainChangedEffects_Patch_WalkSpeed
 	{
-		public static void Postfix(Map ___map)
+		private static WalkSpeedOverlay overlay;
+		public static void Postfix(IntVec3 c, TerrainDef oldTerr, TerrainDef newTerr, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(WalkSpeedOverlay));
+			if (___map != Find.CurrentMap)
+				return;
+			overlay ??= BaseOverlay.GetOverlay<WalkSpeedOverlay>();
+			overlay.Register(___map.cellIndices.CellToIndex(c), newTerr);
+			overlay.SetDirty();
 		}
 	}
 
 	[HarmonyPatch(typeof(EdificeGrid), "Register")]
 	static class EdificeGrid_Register_SetDirty
 	{
-		public static void Postfix(Map ___map)
+		private static WalkSpeedOverlay overlay;
+		public static void Postfix(Building ed, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(WalkSpeedOverlay));
+			if (___map != Find.CurrentMap)
+				return;
+			overlay ??= BaseOverlay.GetOverlay<WalkSpeedOverlay>();
+      var cellIndices = ___map.cellIndices;
+      var cellRect = ed.OccupiedRect();
+			for (var minZ = cellRect.minZ; minZ <= cellRect.maxZ; ++minZ)
+			{
+				for (var minX = cellRect.minX; minX <= cellRect.maxX; ++minX)
+				{
+					var c = new IntVec3(minX, 0, minZ);
+					var index = cellIndices.CellToIndex(c);
+					overlay.Deregister(index);
+				}
+			}
+			overlay.SetDirty();
 		}
 	}
 
 	[HarmonyPatch(typeof(EdificeGrid), "DeRegister")]
 	static class EdificeGrid_DeRegister_SetDirty
 	{
-		public static void Postfix(Map ___map)
+		private static WalkSpeedOverlay overlay;
+		public static void Postfix(Building ed, Map ___map)
 		{
-			if (___map == Find.CurrentMap)
-				BaseOverlay.SetDirty(typeof(WalkSpeedOverlay));
+			if (___map != Find.CurrentMap)
+				return;
+			overlay ??= BaseOverlay.GetOverlay<WalkSpeedOverlay>();
+			var cellIndices = ___map.cellIndices;
+			var cellRect = ed.OccupiedRect();
+			for (var minZ = cellRect.minZ; minZ <= cellRect.maxZ; ++minZ)
+			{
+				for (var minX = cellRect.minX; minX <= cellRect.maxX; ++minX)
+				{
+					var c = new IntVec3(minX, 0, minZ);
+					var index = cellIndices.CellToIndex(c);
+					var terrain = ___map.terrainGrid.TerrainAt(index);
+					overlay.Register(index, terrain);
+				}
+			}
+			overlay.SetDirty();
 		}
 	}
 }
