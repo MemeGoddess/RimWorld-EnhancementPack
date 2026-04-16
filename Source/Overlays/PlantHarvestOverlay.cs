@@ -79,7 +79,7 @@ namespace TD_Enhancement_Pack
 				return;
 
 			var index = ___map.cellIndices.CellToIndex(t.Position);
-			if (t is not Plant plant || overlay.IsValid(plant, index))
+			if (t is not Plant plant || !overlay.IsValid(plant, index))
 				return;
 
 			overlay.Register(index, plant);
@@ -101,7 +101,7 @@ namespace TD_Enhancement_Pack
 			if (!overlay.IsValid(__instance, index))
 				return;
 
-			overlay.Deregister(__instance.Map.cellIndices.CellToIndex(__instance.Position));
+			overlay.Deregister(index);
 			overlay.SetDirty();
 		}
 	}

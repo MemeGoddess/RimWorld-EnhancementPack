@@ -56,8 +56,10 @@ namespace TD_Enhancement_Pack
 		{
 			base.Deregister(index);
 
-			if (Find.CurrentMap.edificeGrid[index]?.def.passability == Traversability.Impassable) 
-				_checkedCells[index] = true;
+			if (Find.CurrentMap?.edificeGrid[index]?.def?.passability == Traversability.Impassable)
+				_cellCache[index] = CacheStatus.False;
+			else
+				_cellCache[index] = CacheStatus.True;
 		}
 	}
 
@@ -69,8 +71,14 @@ namespace TD_Enhancement_Pack
 		{
 			if (___map != Find.CurrentMap)
 				return;
+
 			overlay ??= BaseOverlay.GetOverlay<WalkSpeedOverlay>();
-			overlay.Register(___map.cellIndices.CellToIndex(c), newTerr);
+
+			var index = ___map.cellIndices.CellToIndex(c);
+			if (!overlay.IsValid(newTerr, index))
+				return;
+
+			overlay.Register(index, newTerr);
 			overlay.SetDirty();
 		}
 	}

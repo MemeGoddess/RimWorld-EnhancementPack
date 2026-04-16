@@ -11,78 +11,74 @@ namespace TD_Enhancement_Pack.Overlays
 {
 	abstract class CachedOverlay<T> : BaseOverlay
   {
-	  protected bool[] _shownCells;
-	  protected bool[] _checkedCells;
-	  private T[] _cache;
+	  protected CacheStatus[] _cellCache;
+	  protected T[] _cache;
 
 	  protected static Color transparent = Color.white.ToTransparent(0);
 
 		public override bool ShowCell(int index)
 	  {
-		  _checkedCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-		  if (_checkedCells[index])
-			  return false;
-		  _shownCells ??= new bool[Find.CurrentMap.cellIndices.NumGridCells];
-		  if (_shownCells[index])
-			  return true;
-
-		  var item = GetAndCache(index);
-
-			var valid = IsValid(item, index);
-			if(valid)
+			var cell = _cellCache[index];
+			switch (cell)
 			{
-				_shownCells[index] = true;
+				case CacheStatus.Uncached:
+					var item = GetAndCache(index);
+					var valid = IsValid(item, index);
+					if (valid)
+					{
+						_cellCache[index] = CacheStatus.True;
+					}
+					else
+					{
+						_cellCache[index] = CacheStatus.False;
+						if (item != null)
+							_cache[index] = default;
+					}
+					return true;
+				case CacheStatus.True:
+					return true;
+				case CacheStatus.False: 
+					return false;
+				default:
+					throw new NotImplementedException();
 			}
-			else
-			{
-				_checkedCells[index] = true;
-				if (item != null)
-					_cache[index] = default;
-			}
-
-			return valid;
 	  }
 
 	  public override Color GetCellExtraColor(int index)
 	  {
-		  if (!_shownCells[index])
+		  if (_cellCache[index] == CacheStatus.False)
 			  return transparent;
 
 		  var item = GetAndCache(index);
-		  if (item == null)
-		  {
-			  _shownCells[index] = false;
-			  return transparent;
-		  }
+		  if (item != null) 
+				return GetColor(item, index);
 
-		  return GetColor(item, index);
+		  _cellCache[index] = CacheStatus.False;
+		  return transparent;
 	  }
 
-	  public override void Clear()
-	  {
-		  _shownCells = null;
-		  _checkedCells = null;
-		  _cache = null;
-	  }
+	  //public override void Clear()
+	  //{
+		 // _map = null;
+		 // var cells = _map.cellIndices.NumGridCells;
+			//_cellCache = null;
+		 // _cache = null;
+	  //}
 
 	  public virtual void Register(int index, T item)
 	  {
-		  var numCells = Find.CurrentMap.cellIndices.NumGridCells;
-		  _shownCells ??= new bool[numCells];
-		  _checkedCells ??= new bool[numCells];
+		  _cellCache ??= new CacheStatus[Find.CurrentMap.cellIndices.NumGridCells];
 		  _cache ??= new T[Find.CurrentMap.cellIndices.NumGridCells];
-		  _checkedCells[index] = false;
+			_cellCache[index] = CacheStatus.True;
 		  _cache[index] = item;
 	  }
 
 	  public virtual void Deregister(int index)
 	  {
-		  var numCells = Find.CurrentMap.cellIndices.NumGridCells;
-		  _shownCells ??= new bool[numCells];
-		  _checkedCells ??= new bool[numCells];
+		  _cellCache ??= new CacheStatus[Find.CurrentMap.cellIndices.NumGridCells];
 		  _cache ??= new T[Find.CurrentMap.cellIndices.NumGridCells];
-		  _shownCells[index] = false;
-		  _checkedCells[index] = false;
+
+			_cellCache[index] = CacheStatus.Uncached;
 		  _cache[index] = default;
 	  }
 
@@ -96,7 +92,7 @@ namespace TD_Enhancement_Pack.Overlays
 		  item = GetValue(index);
 		  if (item == null)
 		  {
-			  _shownCells[index] = false;
+			  _cellCache[index] = CacheStatus.False;
 			  return default;
 		  }
 
@@ -110,4 +106,11 @@ namespace TD_Enhancement_Pack.Overlays
 
 		public abstract bool IsValid(T item, int index);
   }
+
+	public enum CacheStatus : byte
+	{
+		Uncached,
+		False,
+		True
+	}
 }

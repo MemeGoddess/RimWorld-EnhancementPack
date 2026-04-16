@@ -76,6 +76,7 @@ namespace TD_Enhancement_Pack
 				{
 					overlay.MakeDrawer();
 					overlay.Clear();
+					overlay.MapUpdated();
 				}
 		}
 
@@ -94,7 +95,7 @@ namespace TD_Enhancement_Pack
 			{
 				if (drawer == null)
 					MakeDrawer();
-
+				PreDraw();
 				drawer.MarkForDraw();// can't just call ActuallyDraw :/
 				drawer.CellBoolDrawerUpdate();
 				PostDraw();
@@ -108,6 +109,8 @@ namespace TD_Enhancement_Pack
 		}
 		public virtual void Clear() { }
 
+		public virtual void MapUpdated() { }
+		public virtual void PreDraw() { }
 		public virtual void PostDraw() { }
 		
 		public virtual bool ShouldAutoDraw() => false;
@@ -163,6 +166,7 @@ namespace TD_Enhancement_Pack
 		public static void Postfix()
 		{
 			BaseOverlay.ResetAll();
+
 		}
 	}
 
