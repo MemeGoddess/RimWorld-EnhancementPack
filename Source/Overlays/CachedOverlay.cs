@@ -71,7 +71,14 @@ namespace TD_Enhancement_Pack.Overlays
 		  _shownCells ??= new bool[numCells];
 		  _checkedCells ??= new bool[numCells];
 		  _cache ??= new T[Find.CurrentMap.cellIndices.NumGridCells];
-		  _checkedCells[index] = false;
+
+		  if (index >= _shownCells.Length)
+		  {
+			  Verse.Log.WarningOnce("Attempted to register outside of array", 9086344);
+			  return;
+		  }
+
+			_checkedCells[index] = false;
 		  _cache[index] = item;
 	  }
 
@@ -81,7 +88,14 @@ namespace TD_Enhancement_Pack.Overlays
 		  _shownCells ??= new bool[numCells];
 		  _checkedCells ??= new bool[numCells];
 		  _cache ??= new T[Find.CurrentMap.cellIndices.NumGridCells];
-		  _shownCells[index] = false;
+
+		  if (index >= _shownCells.Length)
+		  {
+			  Verse.Log.WarningOnce("Attempted to deregister outside of array", 9086345);
+			  return;
+		  }
+
+			_shownCells[index] = false;
 		  _checkedCells[index] = false;
 		  _cache[index] = default;
 	  }
