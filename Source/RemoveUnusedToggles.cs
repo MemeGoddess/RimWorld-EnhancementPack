@@ -52,6 +52,8 @@ namespace TD_Enhancement_Pack
 			SoundDef mouseoverSound = null,
 			string tutorTag = null)
 		{
+			if (!Running || tex == null)
+				return true;
 
 			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
 			{
@@ -81,6 +83,9 @@ namespace TD_Enhancement_Pack
 			bool doMouseoverSound = true,
 			float overrideSize = -1f)
 		{
+			if (!Running || tex == null)
+				return true;
+
 			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
 			{
 				var trace = new StackTrace();
