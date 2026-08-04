@@ -207,6 +207,8 @@ namespace TD_Enhancement_Pack.Overlays
 		public override bool AppliesTo(Thing thing)
 		{
 			var pos = thing.Position;
+			if (Find.CurrentMap.fogGrid.IsFogged(thing.Position))
+				return false;
 			return pos.GetThingList(Find.CurrentMap).Any(t => t.def.IsOrBuildsToTable()) ||
 			       GenAdj.CardinalDirections.Any(dir => (pos + dir).GetThingList(Find.CurrentMap).Any(t => t.def.IsOrBuildsToTable()));
 		}
