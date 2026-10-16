@@ -38,7 +38,7 @@ namespace TD_Enhancement_Pack
 		}
 
 		[HarmonyPriority(Priority.Last)]
-		public static void Postfix()
+		public static void Finalizer()
 		{
 			Running = false;
 			CaptureType = CaptureType.None;
@@ -59,12 +59,7 @@ namespace TD_Enhancement_Pack
 			{
 				var trace = new StackTrace();
 				var frame = trace.GetFrame(2);
-				var caller = frame?.GetMethod();
-				var callerAsm = caller?.DeclaringType?.Assembly;
-				
-				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
-					? callerAsm.GetName().Name + "." + tex.name
-					: tex.name;
+				texLabel = GetTextureLabel(tex, frame?.GetMethod());
 
 				textureModIsolations[tex] = texLabel;
 			}
@@ -90,17 +85,21 @@ namespace TD_Enhancement_Pack
 			{
 				var trace = new StackTrace();
 				var frame = trace.GetFrame(2);
-				var caller = frame?.GetMethod();
-				var callerAsm = caller?.DeclaringType?.Assembly;
-
-				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
-					? callerAsm.GetName().Name + "." + tex.name
-					: tex.name;
+				texLabel = GetTextureLabel(tex, frame?.GetMethod());
 
 				textureModIsolations[tex] = texLabel;
 			}
 
 			return ShouldRender(tex, texLabel, tooltip);
+		}
+
+		public static string GetTextureLabel(Texture2D tex, MethodBase caller)
+		{
+			var callerAsmName = caller?.DeclaringType?.Assembly.GetName().Name;
+
+			return callerAsmName != null && callerAsmName != "Assembly-CSharp"
+				? callerAsmName + "." + tex.name
+				: tex.name;
 		}
 
 		public static bool ShouldRender(Texture2D tex, string texLabel, string tooltip)
@@ -153,19 +152,14 @@ namespace TD_Enhancement_Pack
 			Func<string> tooltip,
 			Color color)
 		{
-			if (!RemoveUnusedToggles.Running)
+			if (!RemoveUnusedToggles.Running || tex == null)
 				return true;
 
 			if (!RemoveUnusedToggles.textureModIsolations.TryGetValue(tex, out var texLabel))
 			{
 				var trace = new StackTrace();
 				var frame = trace.GetFrame(2);
-				var caller = frame?.GetMethod();
-				var callerAsm = caller?.DeclaringType?.Assembly;
-
-				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
-					? callerAsm.GetName().Name + "." + tex.name
-					: tex.name;
+				texLabel = RemoveUnusedToggles.GetTextureLabel(tex, frame?.GetMethod());
 
 				RemoveUnusedToggles.textureModIsolations[tex] = texLabel;
 			}
