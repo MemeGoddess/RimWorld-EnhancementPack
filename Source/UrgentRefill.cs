@@ -7,28 +7,9 @@ using Verse.AI;
 using RimWorld;
 using UnityEngine;
 using HarmonyLib;
-using AllowTool;
 
 namespace TD_Enhancement_Pack
 {
-	/* 
-	 * Using AllowToolDefOf.HaulingUrgent so can't xml this
-	 * 
-	<WorkGiverDef>
-		<defName>HaulUrgentlyRefill</defName>
-		<label>refill zones urgently</label>
-		<giverClass>WorkGiver_HaulUrgentlyRefill</giverClass>
-		<workType>AllowToolDefOf.HaulingUrgent</workType>
-		<verb>refilling urgently</verb>
-		<gerund>refilling urgently</gerund>
-		<priorityInType>100</priorityInType>
-		<directOrderable>false</directOrderable>
-		<requiredCapacities>
-			<li>Manipulation</li>
-		</requiredCapacities>
-	</WorkGiverDef>
-	*/
-
 	[StaticConstructorOnStartup]
 	public static class UrgentRefill
 	{
@@ -39,19 +20,31 @@ namespace TD_Enhancement_Pack
 			if (!Mod.settings.zoneRefill) return;
 			try
 			{
-				TryAugentRefillUsingAllowTool();
-				urgentRefillMod = ModToUse.AllowTool;
-				Log.Message("Loaded urgentRefill using Allow Tool");
+				if (AllowToolDefOf.HaulingUrgent != null)
+				{
+					TryAugentRefillUsingAllowTool();
+					urgentRefillMod = ModToUse.AllowTool;
+					Log.Message("Loaded urgentRefill using Allow Tool");
+				}
 			}
-			catch (Exception) { }
+			catch (Exception ex)
+			{
+				Verse.Log.Warning($"Unable to load AllowTool compat\n{ex.Message}");
+			}
 
 			try
 			{
-				TryAugentRefillUsingKeyzAllowUtil();
-				urgentRefillMod = ModToUse.KeyzAllowUtil;
-				Log.Message("Loaded urgentRefill using Keyz' Allow Utilities");
+				if (AllowToolDefOf.KAU_UrgentHaul != null)
+				{
+					TryAugentRefillUsingKeyzAllowUtil();
+					urgentRefillMod = ModToUse.KeyzAllowUtil;
+					Log.Message("Loaded urgentRefill using Keyz' Allow Utilities");
+				}
 			}
-			catch (Exception) { }
+			catch (Exception ex)
+			{
+				Verse.Log.Warning($"Unable to load Keyz' Allow Utilities compat\n{ex.Message}");
+			}
 		}
 		public static void TryAugentRefillUsingAllowTool()
 		{ 
@@ -79,7 +72,7 @@ namespace TD_Enhancement_Pack
 				defName = "HaulUrgentlyRefill",
 				label = "TD.WorkGiverRefillZones".Translate(),
 				giverClass = typeof(WorkGiver_HaulUrgentlyRefill),
-				workType = KeyzAllowUtilities.KeyzAllowUtilitesDefOf.KAU_UrgentHaul,
+				workType = AllowToolDefOf.KAU_UrgentHaul,
 				verb = "TD.RefillingUrgently".Translate(),
 				gerund = "TD.RefillingUrgently".Translate(),
 				priorityInType = 100,
@@ -87,8 +80,8 @@ namespace TD_Enhancement_Pack
 				requiredCapacities = new List<PawnCapacityDef>() { PawnCapacityDefOf.Manipulation }
 			};
 			DefDatabase<WorkGiverDef>.Add(urgentRefillDef);
-			KeyzAllowUtilities.KeyzAllowUtilitesDefOf.KAU_UrgentHaul.workGiversByPriority.Add(urgentRefillDef);
-			KeyzAllowUtilities.KeyzAllowUtilitesDefOf.KAU_UrgentHaul.workGiversByPriority.SortBy(g => g.priorityInType);
+			AllowToolDefOf.KAU_UrgentHaul.workGiversByPriority.Add(urgentRefillDef);
+			AllowToolDefOf.KAU_UrgentHaul.workGiversByPriority.SortBy(g => g.priorityInType);
 		}
 	}
 

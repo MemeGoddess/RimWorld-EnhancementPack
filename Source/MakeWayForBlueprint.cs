@@ -168,15 +168,13 @@ namespace TD_Enhancement_Pack
 	public static class SkipNotIfBlueprints_Miner
 	{
 		//public override bool ShouldSkip(Pawn pawn, bool forced = false)
-		public static void Postfix(WorkGiver_PlantsCut __instance, ref bool __result, Pawn pawn)
+		public static void Postfix(WorkGiver_Miner __instance, ref bool __result, Pawn pawn)
 		{
 			if (!Mod.settings.makeWayJobs) return;
 
 			if (__result)
-			{
 				// Not Empty, Don't skip
 				__result = pawn.Map.listerThings.ThingsInGroup(ThingRequestGroup.Blueprint).Empty();
-			}
 		}
 	}
 

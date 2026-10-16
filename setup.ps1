@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 function workshop {
     if (Get-Command "steamcmd" -ErrorAction SilentlyContinue) {
         Write-Host "steamcmd is installed."
