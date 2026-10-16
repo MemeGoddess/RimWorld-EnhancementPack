@@ -55,19 +55,7 @@ namespace TD_Enhancement_Pack
 			if (!Running || tex == null)
 				return true;
 
-			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
-			{
-				var trace = new StackTrace();
-				var frame = trace.GetFrame(2);
-				var caller = frame?.GetMethod();
-				var callerAsm = caller?.DeclaringType?.Assembly;
-				
-				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
-					? callerAsm.GetName().Name + "." + tex.name
-					: tex.name;
-
-				textureModIsolations[tex] = texLabel;
-			}
+			var texLabel = tex.CoreTexture.AllocationLabel;
 
 			return ShouldRender(tex, texLabel, tooltip);
 		}
@@ -86,19 +74,7 @@ namespace TD_Enhancement_Pack
 			if (!Running || tex == null)
 				return true;
 
-			if (!textureModIsolations.TryGetValue(tex, out var texLabel))
-			{
-				var trace = new StackTrace();
-				var frame = trace.GetFrame(2);
-				var caller = frame?.GetMethod();
-				var callerAsm = caller?.DeclaringType?.Assembly;
-
-				texLabel = callerAsm.GetName().Name != "Assembly-CSharp"
-					? callerAsm.GetName().Name + "." + tex.name
-					: tex.name;
-
-				textureModIsolations[tex] = texLabel;
-			}
+			var texLabel = tex.CoreTexture.AllocationLabel;
 
 			return ShouldRender(tex, texLabel, tooltip);
 		}
