@@ -20,7 +20,7 @@ namespace TD_Enhancement_Pack
 #endif
 			Harmony harmony = new Harmony("Uuugggg.rimworld.TD_Enhancement_Pack.main");
 			
-			harmony.PatchAll();
+			harmony.PatchAll(Assembly.GetExecutingAssembly());
 		}
 
 		public override void DoSettingsWindowContents(Rect inRect)
